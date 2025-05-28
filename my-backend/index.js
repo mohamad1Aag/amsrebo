@@ -6,6 +6,7 @@ const connectDB = require('./config/database');
 
 const userRoutes = require('./routes/userRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
+const sectionRoutes = require('./routes/sectionRoutes'); //من اجل الاقسام
 
 // تحميل متغيرات البيئة
 dotenv.config();
@@ -23,6 +24,9 @@ connectDB(); // هذه الدالة يجب أن تستخدم mongoose.connect ب
 // الراوتات
 app.use('/api/users', userRoutes);          // مسارات المستخدمين
 app.use('/api/admin', adminAuthRoutes);     // مسارات الأدمن
+app.use('/api/sections', sectionRoutes); // راوتر الأقسام
+app.use('/uploads', express.static('uploads')); // 🟢 لعرض الصور من المتصفح
+
 
 // تشغيل الخادم
 const PORT = process.env.PORT || 5000;
