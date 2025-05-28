@@ -1,17 +1,27 @@
+// middleware/upload.js
 const multer = require('multer');
 const path = require('path');
 
+// إعداد مكان حفظ الصور
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // مجلد حفظ الصور
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // تأكد أن هذا المجلد موجود
   },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const name = Date.now() + ext;
-    cb(null, name);
-  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // اسم فريد
+  }
 });
 
-const upload = multer({ storage });
+// فلترة نوع الملف
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('نوع الملف غير مدعوم'), false);
+  }
+};
+
+const upload = multer({ storage, fileFilter });
 
 module.exports = upload;
