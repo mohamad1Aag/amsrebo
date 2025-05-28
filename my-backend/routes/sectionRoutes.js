@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Section = require('../models/Section');
-const upload = require('../middleware/upload');
+const upload = require('../middlewares/upload');
 
 // 🟢 إضافة قسم مع صورة
 router.post('/add', upload.single('image'), async (req, res) => {
