@@ -1,43 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const Section = require('../models/Section');
-const upload = require('../middlewares/upload');
+const upload = require('../middlewares/cloudinary'); // ✅ Cloudinary middleware
 
-// POST: إضافة قسم جديد مع صورة
+// POST: إضافة قسم جديد
 router.post('/add', upload.single('image'), async (req, res) => {
   try {
     const { name, description } = req.body;
-    const imagePath = req.file ? req.file.filename : null;
+    const imagePath = req.file ? req.file.path : null; // رابط Cloudinary
 
     const newSection = new Section({
       name,
       description,
-      image: imagePath
+      image: imagePath,
     });
 
     await newSection.save();
 
     res.status(201).json(newSection);
   } catch (err) {
-    console.error('❌ خطأ:', err);
+    console.error('❌ خطأ أثناء الإضافة:', err);
     res.status(500).json({ error: 'حدث خطأ أثناء إضافة القسم' });
   }
 });
 
-// PUT أو PATCH لتعديل قسم معين حسب id
+// PUT: تعديل قسم حسب id
 router.put('/edit/:id', upload.single('image'), async (req, res) => {
   try {
-    const sectionId = req.params.id;
     const { name, description } = req.body;
-    const imagePath = req.file ? req.file.filename : null;
+    const imagePath = req.file ? req.file.path : null;
 
-    // ابحث عن القسم وقم بالتعديل
-    const section = await Section.findById(sectionId);
+    const section = await Section.findById(req.params.id);
     if (!section) {
       return res.status(404).json({ error: 'القسم غير موجود' });
     }
 
-    // تحديث الحقول إذا وصلت
     if (name) section.name = name;
     if (description) section.description = description;
     if (imagePath) section.image = imagePath;
@@ -50,6 +47,7 @@ router.put('/edit/:id', upload.single('image'), async (req, res) => {
     res.status(500).json({ error: 'حدث خطأ أثناء تعديل القسم' });
   }
 });
+
 // GET: جلب جميع الأقسام
 router.get('/', async (req, res) => {
   try {
