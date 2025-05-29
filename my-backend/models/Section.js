@@ -7,6 +7,7 @@ const sectionSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    
     image: String ,
     description: String,
 

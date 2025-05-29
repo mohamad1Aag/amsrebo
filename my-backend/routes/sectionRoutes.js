@@ -3,28 +3,53 @@ const router = express.Router();
 const Section = require('../models/Section');
 const upload = require('../middlewares/upload');
 
-// 🟢 إضافة قسم مع صورة
+// POST: إضافة قسم جديد مع صورة
 router.post('/add', upload.single('image'), async (req, res) => {
   try {
     const { name, description } = req.body;
-    const image = req.file ? req.file.filename : null;
+    const imagePath = req.file ? req.file.filename : null;
 
-    const section = new Section({ name, description, image });
-    await section.save();
-    res.status(201).json(section);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const newSection = new Section({
+      name,
+      description,
+      image: imagePath
+    });
+
+    await newSection.save();
+
+    res.status(201).json(newSection);
+  } catch (err) {
+    console.error('❌ خطأ:', err);
+    res.status(500).json({ error: 'حدث خطأ أثناء إضافة القسم' });
   }
 });
 
-// 🔵 عرض الأقسام
-router.get('/', async (req, res) => {
+// PUT أو PATCH لتعديل قسم معين حسب id
+router.put('/edit/:id', upload.single('image'), async (req, res) => {
   try {
-    const sections = await Section.find();
-    res.json(sections);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const sectionId = req.params.id;
+    const { name, description } = req.body;
+    const imagePath = req.file ? req.file.filename : null;
+
+    // ابحث عن القسم وقم بالتعديل
+    const section = await Section.findById(sectionId);
+    if (!section) {
+      return res.status(404).json({ error: 'القسم غير موجود' });
+    }
+
+    // تحديث الحقول إذا وصلت
+    if (name) section.name = name;
+    if (description) section.description = description;
+    if (imagePath) section.image = imagePath;
+
+    await section.save();
+
+    res.status(200).json(section);
+  } catch (err) {
+    console.error('❌ خطأ أثناء التعديل:', err);
+    res.status(500).json({ error: 'حدث خطأ أثناء تعديل القسم' });
   }
 });
+
 
 module.exports = router;
