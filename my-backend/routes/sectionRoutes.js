@@ -50,6 +50,15 @@ router.put('/edit/:id', upload.single('image'), async (req, res) => {
     res.status(500).json({ error: 'حدث خطأ أثناء تعديل القسم' });
   }
 });
-
+// GET: جلب جميع الأقسام
+router.get('/', async (req, res) => {
+  try {
+    const sections = await Section.find();
+    res.status(200).json(sections);
+  } catch (err) {
+    console.error('❌ خطأ أثناء جلب الأقسام:', err);
+    res.status(500).json({ error: 'حدث خطأ أثناء جلب الأقسام' });
+  }
+});
 
 module.exports = router;
