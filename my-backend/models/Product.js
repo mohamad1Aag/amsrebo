@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Section = require('../models/Section'); // تأكد من استيراده
+const Section = require('./Section'); // تأكد من استيراده
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
