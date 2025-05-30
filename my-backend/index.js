@@ -7,6 +7,10 @@ const connectDB = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const sectionRoutes = require('./routes/sectionRoutes'); //من اجل الاقسام
+const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+
+
 
 // تحميل متغيرات البيئة
 dotenv.config();
