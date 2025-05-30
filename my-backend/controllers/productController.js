@@ -1,9 +1,9 @@
 const Product = require('../models/Product');
-const Section = require('../models/section');
+const Section = require('../models/Section');
 
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, description, section } = req.body;
+    const { name, price, description, Section } = req.body;
 
     const imageUrl = req.file ? req.file.path : null; // ✅ Cloudinary يعيد رابط الصورة بـ req.file.path
 
@@ -11,7 +11,7 @@ exports.createProduct = async (req, res) => {
       name,
       price,
       description,
-      section,
+      Section,
       image: imageUrl,
     });
 
@@ -25,7 +25,7 @@ exports.createProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('section');
+    const products = await Product.find().populate('Section');
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -34,7 +34,7 @@ exports.getAllProducts = async (req, res) => {
 
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('section');
+    const product = await Product.findById(req.params.id).populate('Section');
     if (!product) return res.status(404).json({ message: 'المنتج غير موجود' });
     res.json(product);
   } catch (err) {
