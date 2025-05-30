@@ -54,3 +54,33 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
+exports.updateProduct = async (req, res) => {
+  try {
+    const { name, price } = req.body;
+    const imageUrl = req.file ? req.file.path : undefined;
+
+    const updatedData = {
+      name,
+      price,
+    };
+
+    if (imageUrl) updatedData.image = imageUrl;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'المنتج غير موجود' });
+    }
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'حدث خطأ أثناء تحديث المنتج' });
+  }
+};
+
+

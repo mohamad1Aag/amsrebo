@@ -13,5 +13,7 @@ router.get('/products', productController.getAllProducts);
 // جلب منتج حسب الـ ID
 router.get('/products/:id', productController.getProductById);
 router.delete('/products/:id', productController.deleteProduct);
+// routes/productRoutes.js
+router.put('/products/:id', upload.single('image'), productController.updateProduct);
 
 module.exports = router;
