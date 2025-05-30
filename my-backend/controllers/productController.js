@@ -82,5 +82,15 @@ exports.updateProduct = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ أثناء تحديث المنتج' });
   }
 };
+// Get products by section ID
+exports.getProductsBySection = async (req, res) => {
+  try {
+    const products = await Product.find({ section_id: req.params.sectionId });
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('❌ خطأ أثناء جلب المنتجات:', error);
+    res.status(500).json({ error: 'فشل في جلب المنتجات' });
+  }
+};
 
 
