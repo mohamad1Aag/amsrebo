@@ -34,6 +34,7 @@ app.use('/api', productRoutes);
 app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);  // إضافة راوتر الطلبات
 
+app.use('/api/captains', require('./routes/captainRoutes'));
 
 // تشغيل الخادم
 const PORT = process.env.PORT || 5000;

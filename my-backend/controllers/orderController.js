@@ -29,3 +29,12 @@ exports.getOrdersByUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+exports.getallOrder = async (req, res) => {
+  try {
+    const orders = await Order.find().populate('products.productId');
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
