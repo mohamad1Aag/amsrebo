@@ -9,7 +9,7 @@ const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const sectionRoutes = require('./routes/sectionRoutes'); //من اجل الاقسام
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
-
+const orderRoutes = require('./routes/orderRoutes');  // هنا اسم مختلف
 
 
 // تحميل متغيرات البيئة
@@ -32,6 +32,7 @@ app.use('/api/sections', sectionRoutes); // راوتر الأقسام
 app.use('/uploads', express.static('uploads')); // 🟢 لعرض الصور من المتصفح
 app.use('/api', productRoutes);
 app.use('/api', cartRoutes);
+app.use('/api', orderRoutes);  // إضافة راوتر الطلبات
 
 
 // تشغيل الخادم
