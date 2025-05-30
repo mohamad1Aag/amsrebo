@@ -17,19 +17,19 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 1,
       },
-      deliveryLocation: {
-        lat: { type: Number, required: false },
-        lng: { type: Number, required: false }
-      },
     },
   ],
+  deliveryLocation: {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
   status: {
     type: String,
-    default: 'pending', // مثلاً: pending, shipped, delivered
+    default: 'pending',
   },
 });
 
