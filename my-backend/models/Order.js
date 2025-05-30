@@ -17,9 +17,9 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 1,
       },
-      location: {
-        lat: Number,
-        lng: Number,
+      deliveryLocation: {
+        lat: { type: Number, required: false },
+        lng: { type: Number, required: false }
       },
     },
   ],
