@@ -1,5 +1,5 @@
 const Product = require('../models/Product');
-const Section = require('../models/Section'); // تأكد من استيراده
+const Product = require('../models/Section');
 
 exports.createProduct = async (req, res) => {
   try {
