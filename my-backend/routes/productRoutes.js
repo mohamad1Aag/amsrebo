@@ -15,5 +15,5 @@ router.get('/products/:id', productController.getProductById);
 router.delete('/products/:id', productController.deleteProduct);
 // routes/productRoutes.js
 router.put('/products/:id', upload.single('image'), productController.updateProduct);
-router.get('/by-section/:sectionId', ProductController.getProductsBySection);
+router.get('/by-section/:sectionId', productController.getProductsBySection);
 module.exports = router;
