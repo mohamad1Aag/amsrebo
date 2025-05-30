@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const upload = require('../middlewares/cloudinary'); // ✅ هذا هو ملف إعداد Cloudinary
+const Section = require('../models/Section');
 
 // إضافة منتج مع رفع صورة
 router.post('/products', upload.single('image'), productController.createProduct);
