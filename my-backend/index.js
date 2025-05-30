@@ -26,6 +26,8 @@ app.use('/api/users', userRoutes);          // مسارات المستخدمين
 app.use('/api/admin', adminAuthRoutes);     // مسارات الأدمن
 app.use('/api/sections', sectionRoutes); // راوتر الأقسام
 app.use('/uploads', express.static('uploads')); // 🟢 لعرض الصور من المتصفح
+app.use('/api', productRoutes);
+app.use('/api', cartRoutes);
 
 
 // تشغيل الخادم
