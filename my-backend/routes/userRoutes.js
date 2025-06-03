@@ -9,7 +9,7 @@ const {
   getUserProfile,
  updateUserProfile 
 } = require('../controllers/userController');
-const protect = require('../middleware/authMiddleware');
+const protect = require('../middlewares/protect');
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutUser);
