@@ -12,6 +12,7 @@ const {
  deleteUser, 
 } = require('../controllers/userController');
 const protect = require('../middlewares/protect');
+const adminProtect = require('../middlewares/adminProtect');
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutUser);
@@ -21,5 +22,5 @@ router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.get('/', getAllUsers); // بدون تحقق
 router.delete('/:id', protect, deleteUser); // ← حذف مستخدم حسب الـ id
-
+router.delete('/:id', protect, adminProtect, deleteUser);
 module.exports = router;
