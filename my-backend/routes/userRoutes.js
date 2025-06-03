@@ -16,5 +16,6 @@ router.post('/logout', logoutUser);
 router.post('/auth/google', googleLogin);
 router.post('/auth/facebook', facebookLogin);
 router.get('/profile', protect, getUserProfile);
-router.put('/profile', protect, updateUserProfile)
+router.put('/profile', protect, updateUserProfile);
+router.get('/', getAllUsers); // بدون تحقق
 module.exports = router;

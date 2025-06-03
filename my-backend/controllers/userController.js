@@ -142,7 +142,16 @@ const updateUserProfile = async (req, res) => {
     res.status(500).json({ message: "حدث خطأ أثناء تحديث البيانات" });
   }
 };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); // نستثني كلمات المرور
+    res.json(users);
+  } catch (error) {
+    console.error("حدث خطأ أثناء جلب المستخدمين:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء جلب المستخدمين" });
+  }
+};
 
 
 
-module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile};
+module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile,getAllUsers};
