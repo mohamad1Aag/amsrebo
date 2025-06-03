@@ -145,4 +145,4 @@ const updateUserProfile = async (req, res) => {
 
 
 
-module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin };
+module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile};
