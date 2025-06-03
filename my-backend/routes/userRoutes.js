@@ -7,7 +7,9 @@ const {
   googleLogin,
   facebookLogin,
   getUserProfile,
- updateUserProfile 
+ updateUserProfile ,
+ getAllUsers,
+ deleteUser, 
 } = require('../controllers/userController');
 const protect = require('../middlewares/protect');
 router.post('/register', registerUser);
@@ -18,4 +20,6 @@ router.post('/auth/facebook', facebookLogin);
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.get('/', getAllUsers); // بدون تحقق
+router.delete('/:id', protect, deleteUser); // ← حذف مستخدم حسب الـ id
+
 module.exports = router;

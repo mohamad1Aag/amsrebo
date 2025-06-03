@@ -151,7 +151,25 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ message: "حدث خطأ أثناء جلب المستخدمين" });
   }
 };
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({ message: "تم حذف المستخدم بنجاح" });
+  } catch (error) {
+    console.error("Delete user error:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء حذف المستخدم" });
+  }
+};
 
 
 
-module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile,getAllUsers};
+
+module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile, getAllUsers,deleteUser};
