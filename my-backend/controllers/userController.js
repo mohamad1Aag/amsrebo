@@ -91,7 +91,58 @@ const facebookLogin = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  res.json({ message: 'User logged out successfully' });
+  // لو كنت تستخدم JWT مع cookies
+  res.clearCookie("token");
+
+  // رجّع رسالة بسيطة
+  res.status(200).json({ message: "تم تسجيل الخروج بنجاح" });
 };
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id; // افترض إنك تستخدم Middleware للتحقق من التوكن وتحط بيانات المستخدم في req.user
+    const user = await User.findById(userId).select('-password'); // استبعد كلمة السر من البيانات
+
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Get profile error:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء جلب البيانات" });
+  }
+};
+const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id; // بيانات المستخدم من التوكن
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    // تحديث الحقول حسب المدخلات (مثلاً: name و email و password)
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+
+    if (req.body.password) {
+      user.password = await bcrypt.hash(req.body.password, 10);
+    }
+
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id), // تحديث التوكن بعد التعديل
+    });
+  } catch (error) {
+    console.error("Update profile error:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء تحديث البيانات" });
+  }
+};
+
+
 
 module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin };
