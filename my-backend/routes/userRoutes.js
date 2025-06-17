@@ -13,6 +13,7 @@ const {
  updateUserPoints,
 } = require('../controllers/userController');
 const protect = require('../middlewares/protect');
+const { protectAdmin } = require('../middlewares/authadminMiddleware');
 const adminProtect = require('../middlewares/adminProtect');
 router.post('/register', registerUser);
 router.post('/login', loginUser);
@@ -23,5 +24,5 @@ router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.get('/', getAllUsers); // بدون تحقق
 router.delete('/:id', protect, adminProtect, deleteUser);
-router.patch('/:id/points' , adminProtect ,protect, updateUserPoints);
+router.patch('/:id/points', protectAdmin, adminProtect, updateUserPoints);
 module.exports = router;

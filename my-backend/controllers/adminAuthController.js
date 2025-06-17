@@ -1,9 +1,8 @@
-// controllers/adminAuthController.js
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = "your_secret_key"; // يفضل تخزينه في .env
+const JWT_SECRET = "your_secret_key"; // يفضل وضعه في .env
 
 // تسجيل الدخول
 exports.login = async (req, res) => {
@@ -16,7 +15,7 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(400).json({ message: 'كلمة المرور غير صحيحة' });
 
-    // ✅ تضمين الدور في التوكن
+    // ✅ تضمين الدور داخل التوكن
     const token = jwt.sign(
       { id: admin._id, role: admin.role },
       JWT_SECRET,
@@ -37,7 +36,7 @@ exports.register = async (req, res) => {
     const existing = await Admin.findOne({ email });
     if (existing) return res.status(400).json({ message: 'البريد مسجل مسبقًا' });
 
-    // ✅ يتم تعيين الدور تلقائيًا في الـ schema (default: 'admin')
+    // ✅ لا حاجة لتحديد role لأنه تلقائيًا "admin"
     const newAdmin = new Admin({ username, email, password });
     await newAdmin.save();
 
