@@ -12,7 +12,11 @@ const protectAdmin = async (req, res, next) => {
 
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
 
-    req.user = admin; // ✅ حتى يشتغل adminProtect بدون تعديل إضافي
+    if (admin.role !== 'admin') {
+      return res.status(403).json({ message: 'ليس لديك صلاحية للوصول' });
+    }
+
+    req.user = admin; // تخزين بيانات الأدمن في req.user
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid token' });
