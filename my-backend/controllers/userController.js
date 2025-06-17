@@ -169,7 +169,29 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// تحديث نقاط المستخدم
+const updateUserPoints = async (req, res) => {
+  const userId = req.params.id;
+  const newPoint = req.body.point;
+
+  if (typeof newPoint !== 'number' || newPoint < 0) {
+    return res.status(400).json({ message: 'النقاط غير صالحة' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+    user.point = newPoint;
+    await user.save();
+
+    res.status(200).json({ message: 'تم تحديث النقاط بنجاح' });
+  } catch (err) {
+    res.status(500).json({ message: 'خطأ في الخادم' });
+  }
+};
 
 
 
-module.exports = { registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile, getAllUsers,deleteUser};
+
+module.exports ={updateUserPoints, registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile, getAllUsers,deleteUser};

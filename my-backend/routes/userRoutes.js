@@ -22,4 +22,5 @@ router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.get('/', getAllUsers); // بدون تحقق
 router.delete('/:id', protect, adminProtect, deleteUser);
+router.put('/users/:id/points', userController.updateUserPoints);
 module.exports = router;
