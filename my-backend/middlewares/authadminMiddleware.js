@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken');
+const Admin = require('../models/Admin');
+
 const protectAdmin = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
@@ -24,3 +27,6 @@ const protectAdmin = async (req, res, next) => {
     return res.status(401).json({ message: 'Invalid token' });
   }
 };
+
+
+module.exports = { protectAdmin };
