@@ -5,8 +5,8 @@ const userSchema = new mongoose.Schema({
   email:    { type: String, required: true, unique: true },
   point: {
     type: Number,
-    min: [0, 'يجب أن تكون النقاط رقمًا موجبًا'], // ✅ يقبل فقط رقم >= 0
-    unique: true
+    min: [0, 'يجب أن تكون النقاط رقمًا موجبًا'],
+    default: 0,    // نقطة البداية لكل مستخدم جديد
   }, 
   password: { type: String },  // مش لازم كلمة مرور لو Google أو Facebook
   googleId: { type: String },  // لتخزين ID من Google
