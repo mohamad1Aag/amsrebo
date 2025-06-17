@@ -21,6 +21,5 @@ router.post('/auth/facebook', facebookLogin);
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.get('/', getAllUsers); // بدون تحقق
-router.delete('/:id', protect, deleteUser); // ← حذف مستخدم حسب الـ id
 router.delete('/:id', protect, adminProtect, deleteUser);
 module.exports = router;

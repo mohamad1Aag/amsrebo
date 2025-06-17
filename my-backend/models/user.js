@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
   email:    { type: String, required: true, unique: true },
   point: {
     type: Number,
-    required: true,
     min: [0, 'يجب أن تكون النقاط رقمًا موجبًا'], // ✅ يقبل فقط رقم >= 0
     unique: true
   }, 
