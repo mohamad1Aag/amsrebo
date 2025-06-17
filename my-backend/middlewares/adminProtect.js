@@ -1,25 +1,10 @@
-const jwt = require('jsonwebtoken');
-
-const protect = (req, res, next) => {
-  let token;
-
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // تأكد أن decoded يحتوي على الحقول المطلوبة
-      req.user = decoded;  // يحتوي على id و role و email لو موجودة
+const adminProtect = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') { // أو 'الأدمن' حسب الحقل عندك
       next();
-    } catch (error) {
-      return res.status(401).json({ message: 'توكن غير صالح' });
+    } else {
+      res.status(403).json({ message: 'ممنوع، فقط الأدمن يمكنه الوصول لهذه الصفحة' });
     }
-  } else {
-    return res.status(401).json({ message: 'غير مصرح' });
-  }
-};
-
-module.exports = protect;
+  };
+  
+  module.exports = adminProtect;
+  
