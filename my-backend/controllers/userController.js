@@ -172,9 +172,9 @@ const deleteUser = async (req, res) => {
 // تحديث نقاط المستخدم
 const updateUserPoints = async (req, res) => {
   const userId = req.params.id;
-  const newPoints = req.body.points; // تأكد أن المفتاح هنا هو نفسه الذي ترسله من الفرونت
+  const newPoint = req.body.point;  // نستخدم نفس اسم الحقل في الموديل
 
-  if (typeof newPoints !== 'number' || newPoints < 0) {
+  if (typeof newPoint !== 'number' || newPoint < 0) {
     return res.status(400).json({ message: 'النقاط غير صالحة' });
   }
 
@@ -182,12 +182,12 @@ const updateUserPoints = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-    user.points = newPoints; // تأكد أن اسم الحقل في النموذج هو "points"
+    user.point = newPoint;  // عدّل الحقل هنا
     await user.save();
 
     res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
   } catch (err) {
-    console.error(err); // للمساعدة في تتبع الخطأ أثناء التطوير
+    console.error(err);
     res.status(500).json({ message: 'حدث خطأ في الخادم' });
   }
 };
