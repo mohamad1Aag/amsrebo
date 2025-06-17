@@ -1,9 +1,9 @@
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-const JWT_SECRET = "your_secret_key"; // يفضل وضعه في .env
-
+const JWT_SECRET = process.env.JWT_SECRET;
 // تسجيل الدخول
 exports.login = async (req, res) => {
   const { email, password } = req.body;
