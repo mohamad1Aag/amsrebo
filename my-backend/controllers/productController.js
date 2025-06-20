@@ -1,5 +1,5 @@
 const Product = require('../models/Product');
-const section = require('../models/Section');
+const Section = require('../models/Section');
 
 exports.createProduct = async (req, res) => {
   try {
@@ -9,7 +9,16 @@ exports.createProduct = async (req, res) => {
     console.log('--- req.file ---');
     console.log(req.file);
 
-    const { name, price, description, section, adminId } = req.body;
+    // فك name و description لو جاؤا كنص JSON
+    let { name, price, description, section, adminId } = req.body;
+
+    if (typeof name === 'string') {
+      name = JSON.parse(name);
+    }
+    if (description && typeof description === 'string') {
+      description = JSON.parse(description);
+    }
+
     const imageUrl = req.file ? req.file.path : null;
 
     console.log('imageUrl:', imageUrl);
@@ -34,7 +43,6 @@ exports.createProduct = async (req, res) => {
     res.status(400).json({ message: err.message, error: err });
   }
 };
-
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -69,12 +77,21 @@ exports.deleteProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, price } = req.body;
+    let { name, price, description } = req.body;
+
+    if (typeof name === 'string') {
+      name = JSON.parse(name);
+    }
+    if (description && typeof description === 'string') {
+      description = JSON.parse(description);
+    }
+
     const imageUrl = req.file ? req.file.path : undefined;
 
     const updatedData = {
       name,
       price,
+      description,
     };
 
     if (imageUrl) updatedData.image = imageUrl;
@@ -95,7 +112,8 @@ exports.updateProduct = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ أثناء تحديث المنتج' });
   }
 };
-// Get products by section ID
+
+// جلب المنتجات حسب القسم
 exports.getProductsBySection = async (req, res) => {
   try {
     const products = await Product.find({ section: req.params.sectionId });
@@ -105,6 +123,3 @@ exports.getProductsBySection = async (req, res) => {
     res.status(500).json({ error: 'فشل في جلب المنتجات' });
   }
 };
-
-
-
