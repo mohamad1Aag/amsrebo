@@ -1,19 +1,22 @@
 const Cart = require('../models/Cart');
 
 exports.addToCart = async (req, res) => {
-  const { userId, productId ,adminId} = req.body;
+  const { userId, productId, adminId } = req.body;
 
   try {
     let cart = await Cart.findOne({ userId });
 
     if (!cart) {
-      cart = new Cart({ userId, products: [{ productId }] });
+      // لما تنشئ السلة لأول مرة، ضيف adminId مع المنتج
+      cart = new Cart({ userId, products: [{ productId, adminId, quantity: 1 }] });
     } else {
-      const item = cart.products.find(p => p.productId == productId);
+      // لو السلة موجودة، ابحث عن المنتج
+      const item = cart.products.find(p => p.productId.toString() === productId);
       if (item) {
-        item.quantity += 1;
+        item.quantity += 1; // زيد الكمية لو موجود
       } else {
-        cart.products.push({ productId });
+        // لو المنتج غير موجود أضفه مع adminId
+        cart.products.push({ productId, adminId, quantity: 1 });
       }
     }
 
@@ -23,6 +26,7 @@ exports.addToCart = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 exports.getCart = async (req, res) => {
   try {
