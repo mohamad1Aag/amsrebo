@@ -4,6 +4,9 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 
+
+
+
 const userRoutes = require('./routes/userRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const sectionRoutes = require('./routes/sectionRoutes'); //من اجل الاقسام
@@ -21,6 +24,7 @@ const app = express();
 // إعدادات ميدل وير
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // الاتصال بقاعدة البيانات
 connectDB(); // هذه الدالة يجب أن تستخدم mongoose.connect بداخلها
