@@ -30,7 +30,7 @@ exports.addToCart = async (req, res) => {
 
 exports.getCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ userId: req.params.userId }).populate('products.productId');
+    const cart = await Cart.findOne({ userId: req.params.userId }).populate('products.productId').populate('products.adminId');
     if (!cart) return res.status(404).json({ message: 'السلة فارغة' });
     res.json(cart);
   } catch (err) {
