@@ -13,6 +13,7 @@ const sectionRoutes = require('./routes/sectionRoutes'); //من اجل الاق�
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');  // هنا اسم مختلف
+const ratingRoutes = require('./routes/ratingRoutes');
 
 
 // تحميل متغيرات البيئة
@@ -25,7 +26,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/api', ratingRoutes);
 // الاتصال بقاعدة البيانات
 connectDB(); // هذه الدالة يجب أن تستخدم mongoose.connect بداخلها
 
