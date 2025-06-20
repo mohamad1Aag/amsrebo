@@ -3,9 +3,8 @@ const section = require('../models/Section');
 
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, description, section } = req.body;
-
-    const imageUrl = req.file ? req.file.path : null; // ✅ Cloudinary يعيد رابط الصورة بـ req.file.path
+    const { name, price, description, section, adminId } = req.body; // ✅ ضفنا adminId
+    const imageUrl = req.file ? req.file.path : null;
 
     const newProduct = new Product({
       name,
@@ -13,6 +12,7 @@ exports.createProduct = async (req, res) => {
       description,
       section,
       image: imageUrl,
+      adminId, // ✅ خزنه بالمنتج
     });
 
     const savedProduct = await newProduct.save();
@@ -22,6 +22,7 @@ exports.createProduct = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 exports.getAllProducts = async (req, res) => {
   try {
