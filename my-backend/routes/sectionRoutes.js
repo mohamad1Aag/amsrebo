@@ -6,17 +6,18 @@ const upload = require('../middlewares/cloudinary'); // ✅ Cloudinary middlewar
 // POST: إضافة قسم جديد
 router.post('/add', upload.single('image'), async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const imagePath = req.file ? req.file.path : null; // رابط Cloudinary
+    console.log('req.body:', req.body);
+    console.log('req.file:', req.file);
+    const { name_ar, name_en, description_ar, description_en } = req.body;
+    const imagePath = req.file ? req.file.path : null;
 
     const newSection = new Section({
-      name,
-      description,
-      image: imagePath,
+      name: { ar: name_ar, en: name_en },
+      description: { ar: description_ar, en: description_en },
+      image: imagePath
     });
 
     await newSection.save();
-
     res.status(201).json(newSection);
   } catch (err) {
     console.error('❌ خطأ أثناء الإضافة:', err);
@@ -24,29 +25,30 @@ router.post('/add', upload.single('image'), async (req, res) => {
   }
 });
 
+
 // PUT: تعديل قسم حسب id
 router.put('/edit/:id', upload.single('image'), async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name_ar, name_en, description_ar, description_en } = req.body;
     const imagePath = req.file ? req.file.path : null;
 
     const section = await Section.findById(req.params.id);
-    if (!section) {
-      return res.status(404).json({ error: 'القسم غير موجود' });
-    }
+    if (!section) return res.status(404).json({ error: 'القسم غير موجود' });
 
-    if (name) section.name = name;
-    if (description) section.description = description;
+    if (name_ar) section.name.ar = name_ar;
+    if (name_en) section.name.en = name_en;
+    if (description_ar) section.description.ar = description_ar;
+    if (description_en) section.description.en = description_en;
     if (imagePath) section.image = imagePath;
 
     await section.save();
-
     res.status(200).json(section);
   } catch (err) {
     console.error('❌ خطأ أثناء التعديل:', err);
     res.status(500).json({ error: 'حدث خطأ أثناء تعديل القسم' });
   }
 });
+
 
 // GET: جلب جميع الأقسام
 router.get('/', async (req, res) => {
