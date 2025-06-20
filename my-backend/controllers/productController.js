@@ -3,32 +3,38 @@ const section = require('../models/Section');
 
 exports.createProduct = async (req, res) => {
   try {
-    // استخراج البيانات من body
-    const { name, price, description, section, adminId } = req.body;
+    console.log('--- req.body ---');
+    console.log(req.body);
 
-    // رابط الصورة بعد الرفع عبر multer + Cloudinary
+    console.log('--- req.file ---');
+    console.log(req.file);
+
+    const { name, price, description, section, adminId } = req.body;
     const imageUrl = req.file ? req.file.path : null;
 
-    // إنشاء منتج جديد مع جميع البيانات
+    console.log('imageUrl:', imageUrl);
+
     const newProduct = new Product({
       name,
       price,
       description,
       section,
       image: imageUrl,
-      adminId, // إذا كان موجود
+      adminId,
     });
 
-    // حفظ المنتج في قاعدة البيانات
+    console.log('Saving new product...');
     const savedProduct = await newProduct.save();
 
-    // إرسال المنتج المحفوظ كرد
+    console.log('Product saved:', savedProduct);
+
     res.status(201).json(savedProduct);
   } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: err.message });
+    console.error('Error in createProduct:', err);
+    res.status(400).json({ message: err.message, error: err });
   }
 };
+
 
 exports.getAllProducts = async (req, res) => {
   try {
