@@ -1,16 +1,15 @@
-const mongoose =require('mongoose');
+const mongoose = require('mongoose');
 
 const sectionSchema = new mongoose.Schema({
-
-    name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    
-    image: String ,
-    description: String,
-
-
+  name: {
+    ar: { type: String, required: true },
+    en: { type: String, required: true }
+  },
+  description: {
+    ar: { type: String },
+    en: { type: String }
+  },
+  image: String
 });
-module.exports = mongoose.model('Section',sectionSchema);
+
+module.exports = mongoose.model('Section', sectionSchema);
