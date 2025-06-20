@@ -30,7 +30,6 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().populate('section');
