@@ -14,5 +14,7 @@ router.get('/orders/:userId', orderController.getOrdersByUser);
 router.patch('/orders/:orderId/status', orderController.updateOrderStatus);
 
 router.delete('/orders/:orderId', orderController.deleteOrder);
+// تعيين اسم الكابتن للطلب
+router.patch('/orders/:orderId/assign-captain-name', orderController.assignCaptainNameToOrder);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // ربط الطلب بالمستخدم الذي قام به
+    ref: 'User',
     required: true,
   },
 
@@ -11,12 +11,12 @@ const orderSchema = new mongoose.Schema({
     {
       productId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product', // ربط المنتج بجدول المنتجات
+        ref: 'Product',
         required: true,
       },
       vendorId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Vendor', // إذا كان المنتج تابع لبائع
+        ref: 'Vendor',
         required: true,
       },
       name: {
@@ -33,7 +33,7 @@ const orderSchema = new mongoose.Schema({
       },
       type: {
         type: String,
-        enum: ['مفرق', 'جملة'], // تحديد النوع
+        enum: ['مفرق', 'جملة'],
         default: 'مفرق',
       },
     },
@@ -41,16 +41,16 @@ const orderSchema = new mongoose.Schema({
 
   total: {
     type: Number,
-    required: true, // يمكن حسابه عند إنشاء الطلب
+    required: true,
   },
 
   deliveryLocation: {
     lat: { type: Number, required: true },
-    lng: { type: Number, required: true }
+    lng: { type: Number, required: true },
   },
 
   notes: {
-    type: String, // ملاحظات اختيارية من المستخدم (مثل "الرجاء الاتصال قبل التوصيل")
+    type: String,
   },
 
   status: {
@@ -59,10 +59,21 @@ const orderSchema = new mongoose.Schema({
     default: 'جديد',
   },
 
+  captainId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Captain',  // ربط الطلب بالكابتن (اختياري)
+    default: null,
+  },
+
+  captainName: {
+    type: String,
+    default: '', // اسم الكابتن كحقل نصي، فارغ بشكل افتراضي
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
 });
 
 module.exports = mongoose.model('Order', orderSchema);

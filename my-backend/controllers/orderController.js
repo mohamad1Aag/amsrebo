@@ -106,3 +106,30 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
+
+// تعيين اسم الكابتن فقط للطلب
+exports.assignCaptainNameToOrder = async (req, res) => {
+  const { orderId } = req.params;
+  const { captainName } = req.body;
+
+  if (!captainName) {
+    return res.status(400).json({ message: 'يرجى إرسال اسم الكابتن.' });
+  }
+
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { captainName },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'الطلب غير موجود.' });
+    }
+
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error('خطأ أثناء تعيين اسم الكابتن:', error.message);
+    res.status(500).json({ message: 'حدث خطأ أثناء التحديث.' });
+  }
+};
