@@ -73,7 +73,10 @@ exports.updateOrderStatus = async (req, res) => {
   const { orderId } = req.params;
   const { status } = req.body;
 
-  if (!['جديد', 'قيد التنفيذ', 'قيد التوصيل', 'مكتمل', 'مرفوض'].includes(status)) {
+  // أضف الحالة الجديدة هنا
+  const validStatuses = ['جديد', 'قيد التنفيذ', 'بانتظار التوصيل', 'قيد التوصيل', 'مكتمل', 'مرفوض'];
+
+  if (!validStatuses.includes(status)) {
     return res.status(400).json({ message: 'حالة الطلب غير صحيحة.' });
   }
 
