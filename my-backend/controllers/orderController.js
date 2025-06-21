@@ -65,3 +65,22 @@ exports.getAllOrders = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ أثناء جلب الطلبات.' });
   }
 };
+// تحديث حالة الطلب
+exports.updateOrderStatus = async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  if (!['جديد', 'قيد التنفيذ', 'قيد التوصيل', 'مكتمل', 'مرفوض'].includes(status)) {
+    return res.status(400).json({ message: 'حالة الطلب غير صحيحة.' });
+  }
+
+  try {
+    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+    if (!order) return res.status(404).json({ message: 'الطلب غير موجود.' });
+
+    res.json(order);
+  } catch (err) {
+    console.error('خطأ أثناء تحديث حالة الطلب:', err.message);
+    res.status(500).json({ message: 'حدث خطأ أثناء تحديث حالة الطلب.' });
+  }
+};

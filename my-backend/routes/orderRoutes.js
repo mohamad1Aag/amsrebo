@@ -11,4 +11,7 @@ router.get('/all/orders', orderController.getAllOrders);
 // جلب الطلبات الخاصة بمستخدم معيّن
 router.get('/orders/:userId', orderController.getOrdersByUser);
 
+router.patch('/orders/:orderId/status', orderController.updateOrderStatus);
+
+
 module.exports = router;
