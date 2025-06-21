@@ -4,21 +4,32 @@ const jwt = require('jsonwebtoken');
 
 // تسجيل كابتن جديد
 exports.registerCaptain = async (req, res) => {
-  const { name, phone, password } = req.body;
-
-  try {
-    // تشفير كلمة المرور
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // إنشاء كابتن جديد
-    const captain = new Captain({ name, phone, password: hashedPassword });
-    await captain.save();
-
-    res.status(201).json(captain);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+    const { name, phone, password } = req.body;
+  
+    if (!name || !phone || !password) {
+      return res.status(400).json({ message: "الرجاء تعبئة جميع الحقول المطلوبة" });
+    }
+  
+    try {
+      // التحقق من وجود كابتن بنفس رقم الهاتف
+      const existingCaptain = await Captain.findOne({ phone });
+      if (existingCaptain) {
+        return res.status(400).json({ message: "رقم الهاتف مسجل مسبقاً" });
+      }
+  
+      // تشفير كلمة المرور
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // إنشاء كابتن جديد
+      const captain = new Captain({ name, phone, password: hashedPassword });
+      await captain.save();
+  
+      res.status(201).json({ message: "تم التسجيل بنجاح", captainId: captain._id, name: captain.name });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
+  
 
 // تسجيل دخول الكابتن
 exports.loginCaptain = async (req, res) => {

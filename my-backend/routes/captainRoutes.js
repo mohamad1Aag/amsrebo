@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authCaptain = require('../middleware/authCaptain');
+const authCaptain = require('../middlewares/authCaptain');
 const captainController = require('../controllers/captainController');
 
 // راوتات التسجيل والدخول
