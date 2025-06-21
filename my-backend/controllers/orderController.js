@@ -58,13 +58,16 @@ exports.getOrdersByUser = async (req, res) => {
 // جلب كل الطلبات (للمشرف أو البائع)
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('products.productId userId');
+    const orders = await Order.find()
+      .populate('userId')
+      .populate('products.productId');
     res.json(orders);
   } catch (err) {
     console.error('خطأ أثناء جلب جميع الطلبات:', err.message);
     res.status(500).json({ message: 'حدث خطأ أثناء جلب الطلبات.' });
   }
 };
+
 // تحديث حالة الطلب
 exports.updateOrderStatus = async (req, res) => {
   const { orderId } = req.params;
@@ -84,3 +87,19 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ أثناء تحديث حالة الطلب.' });
   }
 };
+
+
+// حذف طلب
+exports.deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'الطلب غير موجود.' });
+    }
+    res.json({ message: 'تم حذف الطلب بنجاح.' });
+  } catch (err) {
+    console.error('خطأ أثناء حذف الطلب:', err.message);
+    res.status(500).json({ message: 'حدث خطأ أثناء حذف الطلب.' });
+  }
+};
+
