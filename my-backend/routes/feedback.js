@@ -35,6 +35,17 @@ router.post('/', async (req, res) => {
   }
 });
 
+// GET /api/feedback  -- جلب كل التقييمات (للأدمن)
+router.get('/', async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find({});
+    res.json(feedbacks);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "خطأ في الخادم" });
+  }
+});
+
 // GET /api/feedback/user/:userId  -- جلب كل التقييمات لمستخدم معين
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
@@ -47,20 +58,21 @@ router.get('/user/:userId', async (req, res) => {
     res.status(500).json({ message: "خطأ في الخادم" });
   }
 });
-// GET /api/feedback/:orderId
+
+// GET /api/feedback/:orderId  -- جلب تقييم طلب معين
 router.get('/:orderId', async (req, res) => {
-    const { orderId } = req.params;
-  
-    try {
-      const feedback = await Feedback.findOne({ orderId });
-      if (!feedback) {
-        return res.status(404).json({ message: "لا يوجد تقييم لهذا الطلب" });
-      }
-      res.json(feedback);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "خطأ في الخادم" });
+  const { orderId } = req.params;
+
+  try {
+    const feedback = await Feedback.findOne({ orderId });
+    if (!feedback) {
+      return res.status(404).json({ message: "لا يوجد تقييم لهذا الطلب" });
     }
-  });
-  
+    res.json(feedback);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "خطأ في الخادم" });
+  }
+});
+
 module.exports = router;

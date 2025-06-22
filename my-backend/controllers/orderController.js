@@ -1,33 +1,25 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const User = require('../models/User');
-const Captain = require('../models/Captain');// إنشاء طلب جديد
+const Captain = require('../models/Captain');
+
+// إنشاء طلب جديد
 exports.createOrder = async (req, res) => {
   const { userId, products, deliveryLocation, notes } = req.body;
 
-  // تحقق من وجود منتجات
   if (!products || !products.length) {
     return res.status(400).json({ message: 'يجب إرسال المنتجات مع الطلب.' });
   }
 
   try {
-    // تحقق من وجود الحقول المطلوبة في كل منتج
     for (let product of products) {
-      if (
-        !product.productId ||
-        !product.vendorId ||
-        !product.name ||
-        !product.price
-      ) {
+      if (!product.productId || !product.vendorId || !product.name || !product.price) {
         return res.status(400).json({ message: 'بعض معلومات المنتجات ناقصة.' });
       }
     }
 
-    // حساب السعر الكلي
-    const total = products.reduce((sum, item) => {
-      return sum + item.price * (item.quantity || 1);
-    }, 0);
+    const total = products.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
-    // إنشاء الطلب
     const order = new Order({
       userId,
       products,
@@ -44,10 +36,17 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// جلب كل الطلبات الخاصة بمستخدم معيّن
+// جلب كل الطلبات الخاصة بمستخدم معيّن مع التحقق من صحة userId
 exports.getOrdersByUser = async (req, res) => {
+  const { userId } = req.params;
+
+  // تحقق من أن userId هو ObjectId صحيح لتجنب خطأ Cast to ObjectId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: 'معرّف المستخدم غير صحيح.' });
+  }
+
   try {
-    const orders = await Order.find({ userId: req.params.userId }).populate('products.productId');
+    const orders = await Order.find({ userId }).populate('products.productId');
     res.json(orders);
   } catch (err) {
     console.error('خطأ أثناء جلب الطلبات:', err.message);
@@ -73,7 +72,6 @@ exports.updateOrderStatus = async (req, res) => {
   const { orderId } = req.params;
   const { status } = req.body;
 
-  // أضف الحالة الجديدة هنا
   const validStatuses = ['جديد', 'قيد التنفيذ', 'بانتظار التوصيل', 'قيد التوصيل', 'مكتمل', 'مرفوض'];
 
   if (!validStatuses.includes(status)) {
@@ -91,7 +89,6 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-
 // حذف طلب
 exports.deleteOrder = async (req, res) => {
   try {
@@ -105,7 +102,6 @@ exports.deleteOrder = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ أثناء حذف الطلب.' });
   }
 };
-
 
 // تعيين اسم الكابتن فقط للطلب
 exports.assignCaptainNameToOrder = async (req, res) => {
@@ -133,6 +129,8 @@ exports.assignCaptainNameToOrder = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ أثناء التحديث.' });
   }
 };
+
+// جلب كل الكباتن
 exports.getAllCaptains = async (req, res) => {
   try {
     const captains = await Captain.find();
