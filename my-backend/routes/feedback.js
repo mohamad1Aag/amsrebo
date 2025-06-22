@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Feedback = require('../models/Feedback');
 
-router.post('/api/feedback', async (req, res) => {
+// POST /api/feedback
+router.post('/', async (req, res) => {
   const { orderId, userId, captainName, rating, comment } = req.body;
 
   if (!orderId || !userId || !captainName || !rating) {
@@ -10,11 +11,13 @@ router.post('/api/feedback', async (req, res) => {
   }
 
   try {
+    // تحقق إذا تم إرسال تقييم لهذا الطلب مسبقًا
     const existing = await Feedback.findOne({ orderId });
     if (existing) {
       return res.status(400).json({ message: "تم إرسال تقييم لهذا الطلب مسبقًا" });
     }
 
+    // إنشاء تقييم جديد
     const newFeedback = new Feedback({
       orderId,
       userId,
@@ -24,6 +27,7 @@ router.post('/api/feedback', async (req, res) => {
     });
 
     await newFeedback.save();
+
     res.status(201).json({ message: "تم حفظ التقييم بنجاح" });
   } catch (err) {
     console.error(err);
