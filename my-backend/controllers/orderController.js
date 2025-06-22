@@ -151,12 +151,13 @@ exports.getOrdersByCaptainName = async (req, res) => {
     const { captainName } = req.params;
     const orders = await Order.find({
       captainName,
-      status: "مكتمل",  // هنا الفلتر
+      status: "مكتمل",
     });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: "خطأ في جلب طلبات الكابتن", error });
   }
 };
+
 
 
