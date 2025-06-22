@@ -8,11 +8,11 @@ router.post('/orders', orderController.createOrder);
 // جلب جميع الطلبات (للمشرف أو البائع)
 router.get('/all/orders', orderController.getAllOrders);
 
-// جلب الكباتن (ضع هذا أولاً!)
+// جلب الكباتن (يكون قبل أي مسار آخر يحتوي على params)
 router.get('/captains', orderController.getAllCaptains);
 
-// جلب الطلبات الخاصة بمستخدم معيّن (هذا بعده)
-router.get('/orders/:userId', orderController.getOrdersByUser);
+// جلب الطلبات الخاصة بمستخدم معين باستخدام مسار واضح
+router.get('/orders/user/:userId', orderController.getOrdersByUser);
 
 router.patch('/orders/:orderId/status', orderController.updateOrderStatus);
 
