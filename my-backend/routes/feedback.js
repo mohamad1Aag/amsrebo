@@ -47,5 +47,20 @@ router.get('/user/:userId', async (req, res) => {
     res.status(500).json({ message: "خطأ في الخادم" });
   }
 });
-
+// GET /api/feedback/:orderId
+router.get('/:orderId', async (req, res) => {
+    const { orderId } = req.params;
+  
+    try {
+      const feedback = await Feedback.findOne({ orderId });
+      if (!feedback) {
+        return res.status(404).json({ message: "لا يوجد تقييم لهذا الطلب" });
+      }
+      res.json(feedback);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "خطأ في الخادم" });
+    }
+  });
+  
 module.exports = router;
