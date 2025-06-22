@@ -35,4 +35,17 @@ router.post('/', async (req, res) => {
   }
 });
 
+// GET /api/feedback/user/:userId  -- جلب كل التقييمات لمستخدم معين
+router.get('/user/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const feedbacks = await Feedback.find({ userId });
+    res.json(feedbacks);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "خطأ في الخادم" });
+  }
+});
+
 module.exports = router;
