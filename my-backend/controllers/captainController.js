@@ -4,32 +4,49 @@ const jwt = require('jsonwebtoken');
 
 // تسجيل كابتن جديد
 exports.registerCaptain = async (req, res) => {
-    const { name, phone, password } = req.body;
-  
-    if (!name || !phone || !password) {
-      return res.status(400).json({ message: "الرجاء تعبئة جميع الحقول المطلوبة" });
+  const { name, phone, email, password } = req.body; // ✅ أضفنا email هنا
+
+  // التحقق من الحقول المطلوبة
+  if (!name || !phone || !email || !password) {
+    return res.status(400).json({ message: "الرجاء تعبئة جميع الحقول المطلوبة" });
+  }
+
+  try {
+    // التحقق من وجود كابتن بنفس رقم الهاتف
+    const existingCaptain = await Captain.findOne({ phone });
+    if (existingCaptain) {
+      return res.status(400).json({ message: "رقم الهاتف مسجل مسبقاً" });
     }
-  
-    try {
-      // التحقق من وجود كابتن بنفس رقم الهاتف
-      const existingCaptain = await Captain.findOne({ phone });
-      if (existingCaptain) {
-        return res.status(400).json({ message: "رقم الهاتف مسجل مسبقاً" });
-      }
-  
-      // تشفير كلمة المرور
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // إنشاء كابتن جديد
-      const captain = new Captain({ name, phone, password: hashedPassword });
-      await captain.save();
-  
-      res.status(201).json({ message: "تم التسجيل بنجاح", captainId: captain._id, name: captain.name });
-    } catch (err) {
-      res.status(500).json({ message: err.message });
+
+    // التحقق من وجود كابتن بنفس البريد الإلكتروني
+    const existingEmail = await Captain.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "البريد الإلكتروني مستخدم مسبقًا" });
     }
-  };
-  
+
+    // تشفير كلمة المرور
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // إنشاء كابتن جديد
+    const captain = new Captain({
+      name,
+      phone,
+      email, // ✅ أضفنا البريد الإلكتروني هنا
+      password: hashedPassword,
+    });
+
+    await captain.save();
+
+    res.status(201).json({
+      message: "تم التسجيل بنجاح",
+      captainId: captain._id,
+      name: captain.name,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 // تسجيل دخول الكابتن
 exports.loginCaptain = async (req, res) => {
