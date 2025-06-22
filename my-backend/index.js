@@ -14,7 +14,7 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');  // هنا اسم مختلف
 const ratingRoutes = require('./routes/ratingRoutes');
-
+const feedbackRoutes = require("./routes/feedback");
 
 // تحميل متغيرات البيئة
 dotenv.config();
@@ -40,7 +40,7 @@ app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);  // إضافة راوتر الطلبات
 
 app.use('/api/captains', require('./routes/captainRoutes'));
-
+app.use("/api/feedback", feedbackRoutes);
 // تشغيل الخادم
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
