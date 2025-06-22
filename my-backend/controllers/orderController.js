@@ -1,6 +1,6 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
-const User = require('../models/Captain');
+const Captain = require('../models/Captain');
 // إنشاء طلب جديد
 exports.createOrder = async (req, res) => {
   const { userId, products, deliveryLocation, notes } = req.body;
