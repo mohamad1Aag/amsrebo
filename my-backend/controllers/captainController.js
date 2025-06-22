@@ -33,24 +33,28 @@ exports.registerCaptain = async (req, res) => {
 
 // تسجيل دخول الكابتن
 exports.loginCaptain = async (req, res) => {
-  const { phone, password } = req.body;
-
-  try {
-    const captain = await Captain.findOne({ phone });
-    if (!captain) return res.status(404).json({ message: 'الكابتن غير موجود' });
-
-    const match = await bcrypt.compare(password, captain.password);
-    if (!match) return res.status(400).json({ message: 'كلمة المرور خاطئة' });
-
-    // إنشاء توكن JWT
-    const token = jwt.sign({ id: captain._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-
-    res.json({ token, captain });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
+    const { phone, password } = req.body;
+  
+    try {
+      const captain = await Captain.findOne({ phone });
+      if (!captain) return res.status(404).json({ message: 'الكابتن غير موجود' });
+  
+      const match = await bcrypt.compare(password, captain.password);
+      if (!match) return res.status(400).json({ message: 'كلمة المرور خاطئة' });
+  
+      // إنشاء توكن JWT مع تضمين اسم الكابتن
+      const token = jwt.sign(
+        { id: captain._id, name: captain.name },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+  
+      res.json({ token, name: captain.name, phone: captain.phone });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
+  
 // تحديث موقع الكابتن الحالي
 exports.updateLocation = async (req, res) => {
   const { lat, lng } = req.body;
