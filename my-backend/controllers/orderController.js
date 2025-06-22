@@ -1,7 +1,6 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
-const Captain = require('../models/Captain');
-// إنشاء طلب جديد
+const Captain = require('../models/Captain');// إنشاء طلب جديد
 exports.createOrder = async (req, res) => {
   const { userId, products, deliveryLocation, notes } = req.body;
 
@@ -132,5 +131,14 @@ exports.assignCaptainNameToOrder = async (req, res) => {
   } catch (error) {
     console.error('خطأ أثناء تعيين اسم الكابتن:', error.message);
     res.status(500).json({ message: 'حدث خطأ أثناء التحديث.' });
+  }
+};
+exports.getAllCaptains = async (req, res) => {
+  try {
+    const captains = await Captain.find();
+    res.json(captains);
+  } catch (err) {
+    console.error('خطأ في جلب الكباتن:', err.message);
+    res.status(500).json({ message: 'خطأ في جلب الكباتن' });
   }
 };
