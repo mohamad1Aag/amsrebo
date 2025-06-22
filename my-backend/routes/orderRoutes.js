@@ -8,14 +8,17 @@ router.post('/orders', orderController.createOrder);
 // جلب جميع الطلبات (للمشرف أو البائع)
 router.get('/all/orders', orderController.getAllOrders);
 
-// جلب الطلبات الخاصة بمستخدم معيّن
+// جلب الكباتن (ضع هذا أولاً!)
+router.get('/captains', orderController.getAllCaptains);
+
+// جلب الطلبات الخاصة بمستخدم معيّن (هذا بعده)
 router.get('/orders/:userId', orderController.getOrdersByUser);
 
 router.patch('/orders/:orderId/status', orderController.updateOrderStatus);
 
 router.delete('/orders/:orderId', orderController.deleteOrder);
+
 // تعيين اسم الكابتن للطلب
 router.patch('/orders/:orderId/assign-captain-name', orderController.assignCaptainNameToOrder);
 
-router.get('/captains', orderController.getAllCaptains);
 module.exports = router;
