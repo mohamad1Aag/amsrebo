@@ -17,4 +17,12 @@ router.delete('/orders/:orderId', orderController.deleteOrder);
 // تعيين اسم الكابتن للطلب
 router.patch('/orders/:orderId/assign-captain-name', orderController.assignCaptainNameToOrder);
 
+router.get('/captains', async (req, res) => {
+    try {
+      const captains = await Captain.find();
+      res.json(captains);
+    } catch (err) {
+      res.status(500).json({ message: 'خطأ في جلب الكباتن' });
+    }
+  });
 module.exports = router;
