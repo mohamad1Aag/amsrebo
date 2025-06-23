@@ -32,7 +32,7 @@ router.put('/profile', protect, updateUserProfile);
 router.get('/', getAllUsers);
 router.delete('/:id', protectAdmin, deleteUser);
 router.patch('/:id/points', protectAdmin, updateUserPoints);
-router.patch('pointcart/:id/points', protect, updatecartUserPoints);
+router.patch('/pointcart/:id/points', protect, updatecartUserPoints);
 // استعادة كلمة المرور
 router.post('/forgot-password-by-username', forgotPasswordByUsername);
 
