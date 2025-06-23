@@ -7,16 +7,18 @@ const {
   googleLogin,
   facebookLogin,
   getUserProfile,
- updateUserProfile ,
- getAllUsers,
- deleteUser,
- forgotPassword,
- getResetPasswordInfo,
- updateUserPoints,
+  updateUserProfile,
+  getAllUsers,
+  deleteUser,
+  updateUserPoints,
+  forgotPassword,
+  getResetPasswordInfo,
+  resetPassword,
 } = require('../controllers/userController');
+
 const protect = require('../middlewares/protect');
 const { protectAdmin } = require('../middlewares/authadminMiddleware');
-const adminProtect = require('../middlewares/adminProtect');
+
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutUser);
@@ -24,10 +26,13 @@ router.post('/auth/google', googleLogin);
 router.post('/auth/facebook', facebookLogin);
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
-router.get('/', getAllUsers); // بدون تحقق
+router.get('/', getAllUsers);
 router.delete('/:id', protectAdmin, deleteUser);
 router.patch('/:id/points', protectAdmin, updateUserPoints);
 
+// استعادة كلمة المرور
 router.post("/forgot-password", forgotPassword);
-router.get('/reset-password-info/:token', getResetPasswordInfo);
+router.get("/reset-password-info/:token", getResetPasswordInfo);
+router.post("/reset-password/:token", resetPassword);
+
 module.exports = router;
