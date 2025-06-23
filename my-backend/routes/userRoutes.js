@@ -17,6 +17,7 @@ const {
   updateUserWallet,
   getUserById,
   updatecartUserPoints,
+  getUserPointHistory,
 } = require('../controllers/userController');
 
 const protect = require('../middlewares/protect');
@@ -41,4 +42,5 @@ router.get("/reset-password-info/:token", getResetPasswordInfo);
 
 router.patch('/:id/wallet', protect, updateUserWallet);
 router.get('/:id', protect, getUserById);
+router.get('/point-history/:id', protect, getUserPointHistory);
 module.exports = router;

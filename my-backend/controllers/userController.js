@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const PointHistory = require('../models/PointHistory');
 
 
 // إعداد الإرسال عبر nodemailer
@@ -284,7 +285,7 @@ const getUserById = async (req, res) => {
 
 const updatecartUserPoints = async (req, res) => {
   const userId = req.params.id;
-  const newPoint = req.body.point;  // يجب أن تكون قيمة رقمية موجبة
+  const newPoint = req.body.point;  // النقاط الجديدة بعد الخصم
 
   if (typeof newPoint !== 'number' || newPoint < 0) {
     return res.status(400).json({ message: 'النقاط غير صالحة' });
@@ -294,8 +295,21 @@ const updatecartUserPoints = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
+    // احسب الفرق بين النقاط القديمة والجديدة (لنعرف مقدار الخصم)
+    const pointsDifference = newPoint - user.point;
+
     user.point = newPoint;
     await user.save();
+
+    // سجل العملية في سجل النقاط فقط إذا كانت نقاط المستخدم انقصت (خصم)
+    if (pointsDifference < 0) {
+      await PointHistory.create({
+        userId,
+        pointsChanged: pointsDifference, // قيمة سالبة تعبر عن خصم
+        type: 'خصم نقاط شراء',
+        description: 'تم خصم النقاط بعد تأكيد طلب الشراء',
+      });
+    }
 
     res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
   } catch (err) {
@@ -303,6 +317,19 @@ const updatecartUserPoints = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ في الخادم' });
   }
 };
+
+
+const getUserPointHistory = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const history = await PointHistory.find({ userId }).sort({ date: -1 }); // أحدث العمليات أولاً
+    res.json(history);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'حدث خطأ في الخادم' });
+  }
+};
+
 
 module.exports ={updateUserPoints,
    registerUser,
@@ -318,7 +345,8 @@ module.exports ={updateUserPoints,
         getResetPasswordInfo ,
         updateUserWallet,
         getUserById,
-        updatecartUserPoints,};
+        updatecartUserPoints,
+        getUserPointHistory,};
 
 
 
