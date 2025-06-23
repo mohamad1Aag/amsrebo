@@ -14,6 +14,7 @@ const {
   forgotPasswordByUsername,
   getResetPasswordInfo,
   resetPassword,
+  updateUserWallet,
 } = require('../controllers/userController');
 
 const protect = require('../middlewares/protect');
