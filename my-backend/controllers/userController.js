@@ -280,6 +280,30 @@ const getUserById = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+const updatecartUserPoints = async (req, res) => {
+  const userId = req.params.id;
+  const newPoint = req.body.point;  // يجب أن تكون قيمة رقمية موجبة
+
+  if (typeof newPoint !== 'number' || newPoint < 0) {
+    return res.status(400).json({ message: 'النقاط غير صالحة' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+    user.point = newPoint;
+    await user.save();
+
+    res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'حدث خطأ في الخادم' });
+  }
+};
+
 module.exports ={updateUserPoints,
    registerUser,
     loginUser,
@@ -293,7 +317,8 @@ module.exports ={updateUserPoints,
        forgotPasswordByUsername,
         getResetPasswordInfo ,
         updateUserWallet,
-        getUserById,};
+        getUserById,
+        updatecartUserPoints,};
 
 
 

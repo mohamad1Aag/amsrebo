@@ -16,6 +16,7 @@ const {
   resetPassword,
   updateUserWallet,
   getUserById,
+  updatecartUserPoints,
 } = require('../controllers/userController');
 
 const protect = require('../middlewares/protect');
@@ -31,7 +32,7 @@ router.put('/profile', protect, updateUserProfile);
 router.get('/', getAllUsers);
 router.delete('/:id', protectAdmin, deleteUser);
 router.patch('/:id/points', protectAdmin, updateUserPoints);
-router.get('/:id', protect, getUserById);
+router.patch('pointcart/:id/points', protect, updatecartUserPoints);
 // استعادة كلمة المرور
 router.post('/forgot-password-by-username', forgotPasswordByUsername);
 
@@ -39,4 +40,5 @@ router.get("/reset-password-info/:token", getResetPasswordInfo);
 
 
 router.patch('/:id/wallet', protect, updateUserWallet);
+router.get('/:id', protect, getUserById);
 module.exports = router;
