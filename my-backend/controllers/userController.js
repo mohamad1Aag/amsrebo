@@ -249,7 +249,7 @@ exports.getResetPasswordInfo = async (req, res) => {
 
 
 module.exports ={updateUserPoints, registerUser, loginUser,
-   logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile, getAllUsers,deleteUser,  forgotPassword, resetPassword };
+   logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile, getAllUsers,deleteUser,  forgotPassword, getResetPasswordInfo };
 
 
 
