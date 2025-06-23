@@ -11,7 +11,7 @@ const {
  getAllUsers,
  deleteUser,
  forgotPassword,
- resetPassword,
+ getResetPasswordInfo,
  updateUserPoints,
 } = require('../controllers/userController');
 const protect = require('../middlewares/protect');
