@@ -5,12 +5,11 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 
-// إعداد الإرسال عبر nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USERNAME, // بريدك
-    pass: process.env.EMAIL_PASSWORD, // كلمة المرور أو App Password
+    user: 'aagmohamad4@gmail.com', // بريدك
+    pass: 'lsijad0u!d@a%r##sf2', // كلمة المرور أو App Password
   },
 });
 
