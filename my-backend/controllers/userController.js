@@ -5,11 +5,12 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 
+// إعداد الإرسال عبر nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'aagmohamad4@gmail.com', // بريدك
-    pass: 'lsijad0u!d@a%r##sf2', // كلمة المرور أو App Password
+    user: process.env.EMAIL_USERNAME, // بريدك
+    pass: process.env.EMAIL_PASSWORD, // كلمة المرور أو App Password
   },
 });
 
@@ -246,6 +247,27 @@ const getResetPasswordInfo = async (req, res) => {
 };
 
 
+const updateUserWallet = async (req, res) => {
+  const userId = req.params.id;
+  const { amount } = req.body; // المبلغ المراد خصمه (يمكن يكون سالب أو موجب)
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (user.wallet + amount < 0) {
+      return res.status(400).json({ message: 'Insufficient wallet balance' });
+    }
+
+    user.wallet += amount; // اضافة او خصم المبلغ
+    await user.save();
+
+    res.json({ message: 'Wallet updated successfully', wallet: user.wallet });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
 
 module.exports ={updateUserPoints,
    registerUser,
@@ -258,7 +280,8 @@ module.exports ={updateUserPoints,
        getAllUsers,
        deleteUser,
        forgotPasswordByUsername,
-        getResetPasswordInfo };
+        getResetPasswordInfo ,
+        updateUserWallet};
 
 
 

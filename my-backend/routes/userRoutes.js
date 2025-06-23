@@ -35,4 +35,6 @@ router.post('/forgot-password-by-username', forgotPasswordByUsername);
 
 router.get("/reset-password-info/:token", getResetPasswordInfo);
 
+
+router.patch('/:id/wallet', protect, updateUserWallet);
 module.exports = router;
