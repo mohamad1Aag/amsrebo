@@ -1,6 +1,19 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+
+
+// إعداد الإرسال عبر nodemailer
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USERNAME, // بريدك
+    pass: process.env.EMAIL_PASSWORD, // كلمة المرور أو App Password
+  },
+});
+
 
 // تسجيل مستخدم عادي
 const registerUser = async (req, res) => {
@@ -195,5 +208,56 @@ const updateUserPoints = async (req, res) => {
 
 
 
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
 
-module.exports ={updateUserPoints, registerUser, loginUser, logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile, getAllUsers,deleteUser};
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: 'لا يوجد مستخدم بهذا البريد' });
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+  const resetLink = `https://your-frontend-url.com/reset-password/${token}`;
+
+  try {
+    await transporter.sendMail({
+      to: email,
+      subject: "إعادة تعيين كلمة المرور",
+      html: `<p>انقر على الرابط التالي لإعادة تعيين كلمة المرور:</p><a href="${resetLink}">${resetLink}</a>`,
+    });
+
+    res.status(200).json({ message: 'تم إرسال الرابط إلى بريدك الإلكتروني' });
+  } catch (err) {
+    console.error("Email error:", err.message);
+    res.status(500).json({ message: "فشل إرسال البريد الإلكتروني" });
+  }
+};
+
+exports.getResetPasswordInfo = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+    res.json({ email: user.email });
+  } catch (error) {
+    res.status(400).json({ message: 'الرابط غير صالح أو منتهي الصلاحية' });
+  }
+};
+
+
+
+module.exports ={updateUserPoints, registerUser, loginUser,
+   logoutUser, googleLogin, facebookLogin ,getUserProfile,updateUserProfile, getAllUsers,deleteUser,  forgotPassword, resetPassword };
+
+
+
+
+
+
+
+
+
+
+

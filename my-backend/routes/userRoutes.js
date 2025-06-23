@@ -9,7 +9,9 @@ const {
   getUserProfile,
  updateUserProfile ,
  getAllUsers,
- deleteUser, 
+ deleteUser,
+ forgotPassword,
+ resetPassword,
  updateUserPoints,
 } = require('../controllers/userController');
 const protect = require('../middlewares/protect');
@@ -26,4 +28,6 @@ router.get('/', getAllUsers); // بدون تحقق
 router.delete('/:id', protectAdmin, deleteUser);
 router.patch('/:id/points', protectAdmin, updateUserPoints);
 
+router.post("/forgot-password", forgotPassword);
+router.get('/reset-password-info/:token', getResetPasswordInfo);
 module.exports = router;
