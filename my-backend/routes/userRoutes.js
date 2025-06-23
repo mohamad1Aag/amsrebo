@@ -11,7 +11,7 @@ const {
   getAllUsers,
   deleteUser,
   updateUserPoints,
-  forgotPassword,
+  forgotPasswordByUsername,
   getResetPasswordInfo,
   resetPassword,
 } = require('../controllers/userController');
@@ -31,8 +31,8 @@ router.delete('/:id', protectAdmin, deleteUser);
 router.patch('/:id/points', protectAdmin, updateUserPoints);
 
 // استعادة كلمة المرور
-router.post("/forgot-password", forgotPassword);
+router.post('/forgot-password-by-username', forgotPasswordByUsername);
+
 router.get("/reset-password-info/:token", getResetPasswordInfo);
-router.post("/reset-password/:token", resetPassword);
 
 module.exports = router;

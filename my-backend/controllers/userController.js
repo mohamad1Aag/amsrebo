@@ -4,16 +4,18 @@ const generateToken = require('../utils/generateToken');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
-// إعداد nodemailer
+
+// إعداد الإرسال عبر nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USERNAME,
-    pass: process.env.EMAIL_PASSWORD,
+    user: process.env.EMAIL_USERNAME, // بريدك
+    pass: process.env.EMAIL_PASSWORD, // كلمة المرور أو App Password
   },
 });
 
-// تسجيل مستخدم
+
+// تسجيل مستخدم عادي
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -37,9 +39,11 @@ const registerUser = async (req, res) => {
   }
 };
 
-// تسجيل دخول
+
+// تسجيل دخول عادي
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+
   const user = await User.findOne({ email });
   if (!user) return res.status(400).json({ message: 'Invalid email or password' });
 
@@ -54,15 +58,18 @@ const loginUser = async (req, res) => {
   });
 };
 
-// Google login
+// تسجيل دخول عبر Google
 const googleLogin = async (req, res) => {
   const { email, name, googleId } = req.body;
 
   let user = await User.findOne({ email });
-  if (user && !user.googleId) {
-    user.googleId = googleId;
-    await user.save();
-  } else if (!user) {
+  if (user) {
+    // إذا موجود فقط تأكد من تخزين googleId
+    if (!user.googleId) {
+      user.googleId = googleId;
+      await user.save();
+    }
+  } else {
     user = await User.create({ name, email, googleId });
   }
 
@@ -74,15 +81,17 @@ const googleLogin = async (req, res) => {
   });
 };
 
-// Facebook login
+// تسجيل دخول عبر Facebook
 const facebookLogin = async (req, res) => {
   const { email, name, facebookId } = req.body;
 
   let user = await User.findOne({ email });
-  if (user && !user.facebookId) {
-    user.facebookId = facebookId;
-    await user.save();
-  } else if (!user) {
+  if (user) {
+    if (!user.facebookId) {
+      user.facebookId = facebookId;
+      await user.save();
+    }
+  } else {
     user = await User.create({ name, email, facebookId });
   }
 
@@ -94,31 +103,135 @@ const facebookLogin = async (req, res) => {
   });
 };
 
-// استعادة كلمة المرور
-const forgotPassword = async (req, res) => {
-  const { email } = req.body;
+const logoutUser = async (req, res) => {
+  // لو كنت تستخدم JWT مع cookies
+  res.clearCookie("token");
 
-  const user = await User.findOne({ email });
-  if (!user) return res.status(404).json({ message: 'لا يوجد مستخدم بهذا البريد' });
+  // رجّع رسالة بسيطة
+  res.status(200).json({ message: "تم تسجيل الخروج بنجاح" });
+};
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id; // افترض إنك تستخدم Middleware للتحقق من التوكن وتحط بيانات المستخدم في req.user
+    const user = await User.findById(userId).select('-password'); // استبعد كلمة السر من البيانات
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-  const resetLink = `https://your-frontend-url.com/reset-password/${token}`;
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Get profile error:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء جلب البيانات" });
+  }
+};
+const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id; // بيانات المستخدم من التوكن
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    // تحديث الحقول حسب المدخلات (مثلاً: name و email و password)
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+
+    if (req.body.password) {
+      user.password = await bcrypt.hash(req.body.password, 10);
+    }
+
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id), // تحديث التوكن بعد التعديل
+    });
+  } catch (error) {
+    console.error("Update profile error:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء تحديث البيانات" });
+  }
+};
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); // نستثني كلمات المرور
+    res.json(users);
+  } catch (error) {
+    console.error("حدث خطأ أثناء جلب المستخدمين:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء جلب المستخدمين" });
+  }
+};
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({ message: "تم حذف المستخدم بنجاح" });
+  } catch (error) {
+    console.error("Delete user error:", error.message);
+    res.status(500).json({ message: "حدث خطأ أثناء حذف المستخدم" });
+  }
+};
+
+// تحديث نقاط المستخدم
+const updateUserPoints = async (req, res) => {
+  const userId = req.params.id;
+  const newPoint = req.body.point;  // نستخدم نفس اسم الحقل في الموديل
+
+  if (typeof newPoint !== 'number' || newPoint < 0) {
+    return res.status(400).json({ message: 'النقاط غير صالحة' });
+  }
 
   try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+    user.point = newPoint;  // عدّل الحقل هنا
+    await user.save();
+
+    res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'حدث خطأ في الخادم' });
+  }
+};
+
+
+
+
+
+const forgotPasswordByUsername = async (req, res) => {
+  const { username } = req.body;
+
+  try {
+    const user = await User.findOne({ name: username });
+    if (!user) return res.status(404).json({ message: 'اسم المستخدم غير موجود' });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+    const resetLink = `https://your-frontend-url.com/reset-password/${token}`;
+
     await transporter.sendMail({
-      to: email,
+      to: user.email,
       subject: "إعادة تعيين كلمة المرور",
       html: `<p>انقر على الرابط التالي لإعادة تعيين كلمة المرور:</p><a href="${resetLink}">${resetLink}</a>`,
     });
 
-    res.status(200).json({ message: 'تم إرسال الرابط إلى بريدك الإلكتروني' });
+    res.status(200).json({ message: 'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني' });
   } catch (err) {
     console.error("Email error:", err.message);
     res.status(500).json({ message: "فشل إرسال البريد الإلكتروني" });
   }
 };
-
-// إرجاع الإيميل من التوكن
 const getResetPasswordInfo = async (req, res) => {
   const { token } = req.params;
 
@@ -133,120 +246,29 @@ const getResetPasswordInfo = async (req, res) => {
   }
 };
 
-// إعادة تعيين كلمة المرور
-const resetPassword = async (req, res) => {
-  const { token } = req.params;
-  const { password } = req.body;
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-    user.password = await bcrypt.hash(password, 10);
-    await user.save();
+module.exports ={updateUserPoints,
+   registerUser,
+    loginUser,
+    logoutUser,
+     googleLogin,
+      facebookLogin ,
+      getUserProfile,
+      updateUserProfile,
+       getAllUsers,
+       deleteUser,
+       forgotPasswordByUsername,
+        getResetPasswordInfo };
 
-    res.status(200).json({ message: 'تم إعادة تعيين كلمة المرور بنجاح' });
-  } catch (err) {
-    res.status(400).json({ message: 'الرابط غير صالح أو منتهي الصلاحية' });
-  }
-};
 
-// بيانات المستخدم
-const getUserProfile = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const user = await User.findById(userId).select('-password');
-    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: "حدث خطأ أثناء جلب البيانات" });
-  }
-};
 
-// تعديل البيانات
-const updateUserProfile = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
 
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-    if (req.body.password) {
-      user.password = await bcrypt.hash(req.body.password, 10);
-    }
-    await user.save();
 
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
-    });
-  } catch (error) {
-    res.status(500).json({ message: "حدث خطأ أثناء تحديث البيانات" });
-  }
-};
 
-// حذف مستخدم
-const deleteUser = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
 
-    await user.deleteOne();
-    res.status(200).json({ message: "تم حذف المستخدم بنجاح" });
-  } catch (error) {
-    res.status(500).json({ message: "حدث خطأ أثناء حذف المستخدم" });
-  }
-};
 
-// عرض جميع المستخدمين
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find().select('-password');
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: "حدث خطأ أثناء جلب المستخدمين" });
-  }
-};
 
-// تحديث نقاط المستخدم
-const updateUserPoints = async (req, res) => {
-  const userId = req.params.id;
-  const newPoint = req.body.point;
 
-  if (typeof newPoint !== 'number' || newPoint < 0) {
-    return res.status(400).json({ message: 'النقاط غير صالحة' });
-  }
 
-  try {
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-    user.point = newPoint;
-    await user.save();
-
-    res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
-  } catch (err) {
-    res.status(500).json({ message: 'حدث خطأ في الخادم' });
-  }
-};
-
-module.exports = {
-  registerUser,
-  loginUser,
-  logoutUser,
-  googleLogin,
-  facebookLogin,
-  getUserProfile,
-  updateUserProfile,
-  getAllUsers,
-  deleteUser,
-  updateUserPoints,
-  forgotPassword,
-  getResetPasswordInfo,
-  resetPassword,
-};
