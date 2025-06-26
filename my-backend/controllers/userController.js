@@ -331,6 +331,39 @@ const getUserPointHistory = async (req, res) => {
 };
 
 
+
+const addPointsToUser = async (req, res) => {
+  try {
+    const { userId, points, description } = req.body;
+
+    // تأكد أن المستخدم موجود
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
+
+    // تحديث النقاط
+    user.points = (user.points || 0) + points;
+    await user.save();
+
+    // إنشاء سجل في جدول PointHistory
+    const history = new PointHistory({
+      userId,
+      pointsChanged: points,
+      type: points > 0 ? 'شحن نقاط' : 'خصم نقاط',
+      description: description || (points > 0 ? 'تم شحن النقاط' : 'تم خصم النقاط')
+    });
+    await history.save();
+
+    // (اختياري) إرسال إشعار إذا عندك نظام إشعارات
+    // sendNotificationToUser(userId, `تم ${points > 0 ? 'إضافة' : 'خصم'} ${Math.abs(points)} نقطة`);
+
+    res.status(200).json({ success: true, message: 'تم تحديث النقاط وتسجيل العملية في السجل' });
+  } catch (error) {
+    console.error('خطأ في شحن النقاط:', error);
+    res.status(500).json({ success: false, message: 'حدث خطأ في السيرفر' });
+  }
+};
+
+
 module.exports ={updateUserPoints,
    registerUser,
     loginUser,
@@ -346,7 +379,8 @@ module.exports ={updateUserPoints,
         updateUserWallet,
         getUserById,
         updatecartUserPoints,
-        getUserPointHistory,};
+        getUserPointHistory,
+        addPointsToUser};
 
 
 

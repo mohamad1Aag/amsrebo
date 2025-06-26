@@ -18,6 +18,7 @@ const {
   getUserById,
   updatecartUserPoints,
   getUserPointHistory,
+  addPointsToUser,
 } = require('../controllers/userController');
 
 const protect = require('../middlewares/protect');
@@ -38,9 +39,11 @@ router.patch('/pointcart/:id/points', protect, updatecartUserPoints);
 router.post('/forgot-password-by-username', forgotPasswordByUsername);
 
 router.get("/reset-password-info/:token", getResetPasswordInfo);
+router.post('/add-points', protectAdmin, addPointsToUser);
 
 
 router.patch('/:id/wallet', protect, updateUserWallet);
 router.get('/:id', protect, getUserById);
 router.get('/point-history/:id', protect, getUserPointHistory);
+
 module.exports = router;
