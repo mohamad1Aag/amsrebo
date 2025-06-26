@@ -39,11 +39,12 @@ router.patch('/pointcart/:id/points', protect, updatecartUserPoints);
 router.post('/forgot-password-by-username', forgotPasswordByUsername);
 
 router.get("/reset-password-info/:token", getResetPasswordInfo);
-router.post('/add-points', protectAdmin, addPointsToUser);
 
 
-router.patch('/:id/wallet', protect, updateUserWallet);
-router.get('/:id', protect, getUserById);
+// router.patch('/:id/wallet', protect, updateUserWallet);
 router.get('/point-history/:id', protect, getUserPointHistory);
+router.post('/point-history/add', protectAdmin, addPointsToUser);
+router.get('/:id', protect, getUserById);
+
 
 module.exports = router;

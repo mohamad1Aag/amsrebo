@@ -341,8 +341,8 @@ const addPointsToUser = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
 
     // تحديث النقاط
-    user.points = (user.points || 0) + points;
-    await user.save();
+    user.point = (user.point || 0) + points;
+        await user.save();
 
     // إنشاء سجل في جدول PointHistory
     const history = new PointHistory({
