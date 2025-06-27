@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Order = require('../models/Order');
-const User = require('../models/User');
+const User = require('../models/user');
 const Captain = require('../models/Captain');
 
 // إنشاء طلب جديد
