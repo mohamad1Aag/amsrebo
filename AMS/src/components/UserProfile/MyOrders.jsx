@@ -40,6 +40,10 @@ export default function MyOrders() {
   const [error, setError] = useState(null);
   const [ratings, setRatings] = useState({});
   const [submitting, setSubmitting] = useState({});
+  const [captainsImages, setCaptainsImages] = useState({});
+
+  // مودال عرض الصورة
+  const [modalImage, setModalImage] = useState(null);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === "ar" ? "en" : "ar";
@@ -69,13 +73,11 @@ export default function MyOrders() {
         return;
       }
       try {
-        // جلب الطلبات
         const response = await axios.get(
           `https://my-backend-dgp2.onrender.com/api/orders/user/${userId}`
         );
         const ordersData = response.data;
 
-        // جلب التقييمات لكل طلب بناءً على orderId
         const feedbackPromises = ordersData.map((order) =>
           axios
             .get(`https://my-backend-dgp2.onrender.com/api/feedback/${order._id}`)
@@ -83,7 +85,6 @@ export default function MyOrders() {
               (res) => ({ orderId: order._id, feedback: res.data }),
               (err) => {
                 if (err.response && err.response.status === 404) {
-                  // لا يوجد تقييم
                   return { orderId: order._id, feedback: null };
                 } else {
                   throw err;
@@ -92,7 +93,21 @@ export default function MyOrders() {
             )
         );
 
+        const uniqueCaptainNames = [
+          ...new Set(ordersData.map((order) => order.captainName).filter(Boolean)),
+        ];
+
+        const captainImagePromises = uniqueCaptainNames.map((name) =>
+          axios
+            .get(`https://my-backend-dgp2.onrender.com/api/captains/by-name/${encodeURIComponent(name)}`)
+            .then(
+              (res) => ({ name, profileImage: res.data.profileImage }),
+              () => ({ name, profileImage: "" })
+            )
+        );
+
         const feedbacks = await Promise.all(feedbackPromises);
+        const captainImagesData = await Promise.all(captainImagePromises);
 
         const ratingsData = {};
         feedbacks.forEach(({ orderId, feedback }) => {
@@ -105,8 +120,14 @@ export default function MyOrders() {
           }
         });
 
+        const imagesData = {};
+        captainImagesData.forEach(({ name, profileImage }) => {
+          imagesData[name] = profileImage || "";
+        });
+
         setOrders(ordersData);
         setRatings(ratingsData);
+        setCaptainsImages(imagesData);
       } catch (err) {
         setError(t("fetch_orders_error"));
         console.error(err);
@@ -145,7 +166,6 @@ export default function MyOrders() {
     }
     setSubmitting((prev) => ({ ...prev, [orderId]: true }));
     try {
-      // إرسال التقييم عبر POST /api/feedback مع نفس البيانات المطلوبة من الباكند
       await axios.post("https://my-backend-dgp2.onrender.com/api/feedback", {
         orderId,
         userId,
@@ -159,7 +179,6 @@ export default function MyOrders() {
         [orderId]: { ...prev[orderId], readOnly: true },
       }));
     } catch (error) {
-      // إذا كان الخطأ 400 بسبب إرسال تقييم مسبقًا
       if (
         error.response &&
         error.response.status === 400 &&
@@ -234,6 +253,7 @@ export default function MyOrders() {
           {orders.map((order) => {
             const feedback = ratings[order._id] || {};
             const isReadOnly = feedback.readOnly;
+            const captainImage = captainsImages[order.captainName] || "";
 
             return (
               <div
@@ -282,8 +302,16 @@ export default function MyOrders() {
                     <p>{order.products.length}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium flex items-center space-x-2 rtl:space-x-reverse">
                       {t("captain_name") || "اسم الكابتن"}:
+                      {captainImage && (
+                        <img
+                          src={captainImage}
+                          alt={order.captainName}
+                          className="w-8 h-8 rounded-full ml-2 rtl:mr-2 object-cover cursor-pointer"
+                          onClick={() => setModalImage(captainImage)}
+                        />
+                      )}
                     </p>
                     <p className="text-indigo-600 dark:text-indigo-300 font-semibold truncate">
                       {order.captainName || t("no_captain_assigned") || "لم يتم تعيين كابتن"}
@@ -350,6 +378,34 @@ export default function MyOrders() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* مودال الصورة */}
+      {modalImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
+          onClick={() => setModalImage(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="relative max-w-lg max-h-full p-4 bg-white rounded-md dark:bg-gray-800"
+            onClick={(e) => e.stopPropagation()} // منع إغلاق المودال عند الضغط داخل الصورة
+          >
+            <button
+              onClick={() => setModalImage(null)}
+              className="absolute top-2 right-2 text-gray-700 dark:text-gray-300 hover:text-red-600 text-2xl font-bold"
+              aria-label="Close image modal"
+            >
+              &times;
+            </button>
+            <img
+              src={modalImage}
+              alt="كابتن"
+              className="max-w-full max-h-[80vh] rounded-md object-contain"
+            />
+          </div>
         </div>
       )}
     </div>

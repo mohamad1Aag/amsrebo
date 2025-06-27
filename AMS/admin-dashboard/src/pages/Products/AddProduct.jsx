@@ -11,15 +11,18 @@ const AddProduct = () => {
   const [products, setProducts] = useState([]);
   const [sectionId, setSectionId] = useState('');
 
-  // الاسم ثنائي اللغة
   const [nameAr, setNameAr] = useState('');
   const [nameEn, setNameEn] = useState('');
-
-  // الوصف ثنائي اللغة
   const [descAr, setDescAr] = useState('');
   const [descEn, setDescEn] = useState('');
 
-  const [price, setPrice] = useState('');
+  // السعر المفرق والجملة
+  const [priceRetail, setPriceRetail] = useState('');
+  const [priceWholesale, setPriceWholesale] = useState('');
+
+  // نوع السعر للعرض
+  const [priceType, setPriceType] = useState('retail'); // retail أو wholesale
+
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState('');
   const fileRef = useRef(null);
@@ -77,7 +80,6 @@ const AddProduct = () => {
       return;
     }
 
-    // تشكيل الاسم والوصف ككائنات ثنائية اللغة
     const nameObj = { ar: nameAr, en: nameEn };
     const descriptionObj = { ar: descAr, en: descEn };
 
@@ -85,7 +87,8 @@ const AddProduct = () => {
     formData.append('section', sectionId);
     formData.append('name', JSON.stringify(nameObj));
     formData.append('description', JSON.stringify(descriptionObj));
-    formData.append('price', price);
+    formData.append('priceRetail', priceRetail);
+    formData.append('priceWholesale', priceWholesale);
     formData.append('image', image);
     formData.append('adminId', adminId);
 
@@ -97,12 +100,12 @@ const AddProduct = () => {
       );
 
       setMessage(`${t('product_added_success')}: ${res.data.name[i18n.language] || res.data.name.en}`);
-      // مسح الحقول بعد الإضافة
       setNameAr('');
       setNameEn('');
       setDescAr('');
       setDescEn('');
-      setPrice('');
+      setPriceRetail('');
+      setPriceWholesale('');
       setSectionId('');
       setImage(null);
       if (fileRef.current) fileRef.current.value = '';
@@ -112,7 +115,6 @@ const AddProduct = () => {
     }
   };
 
-  // دالة لعرض اسم القسم حسب اللغة الحالية
   const getSectionName = (section) => {
     if (!section || !section.name) return '';
     return section.name[i18n.language] || section.name.en || '';
@@ -120,11 +122,9 @@ const AddProduct = () => {
 
   return (
     <div className={`${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-r from-purple-800 via-pink-600 to-yellow-100 text-black'} p-6 min-h-screen`}>
-      {/* نموذج إضافة منتج */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} max-w-xl mx-auto rounded-xl shadow-lg p-6 mb-10`}>
         <h2 className="text-2xl font-bold text-center text-purple-800 mb-4">{t('add_new_product')}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-
           <select
             value={sectionId}
             onChange={(e) => setSectionId(e.target.value)}
@@ -137,7 +137,6 @@ const AddProduct = () => {
             ))}
           </select>
 
-          {/* الاسم عربي */}
           <input
             type="text"
             placeholder={t('product_name_ar')}
@@ -147,7 +146,6 @@ const AddProduct = () => {
             className={`${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'} w-full p-2 border rounded focus:outline-none`}
           />
 
-          {/* الاسم انجليزي */}
           <input
             type="text"
             placeholder={t('product_name_en')}
@@ -157,7 +155,6 @@ const AddProduct = () => {
             className={`${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'} w-full p-2 border rounded focus:outline-none`}
           />
 
-          {/* الوصف عربي */}
           <textarea
             placeholder={t('product_description_ar')}
             value={descAr}
@@ -166,7 +163,6 @@ const AddProduct = () => {
             rows={3}
           />
 
-          {/* الوصف انجليزي */}
           <textarea
             placeholder={t('product_description_en')}
             value={descEn}
@@ -175,11 +171,21 @@ const AddProduct = () => {
             rows={3}
           />
 
+          {/* أسعار المفرق والجملة */}
           <input
             type="number"
-            placeholder={t('price')}
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            placeholder={t('price_retail')}
+            value={priceRetail}
+            onChange={(e) => setPriceRetail(e.target.value)}
+            required
+            className={`${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'} w-full p-2 border rounded focus:outline-none`}
+          />
+
+          <input
+            type="number"
+            placeholder={t('price_wholesale')}
+            value={priceWholesale}
+            onChange={(e) => setPriceWholesale(e.target.value)}
             required
             className={`${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'} w-full p-2 border rounded focus:outline-none`}
           />
@@ -208,6 +214,26 @@ const AddProduct = () => {
         )}
       </div>
 
+      {/* اختيار نوع السعر للعرض */}
+      <div className="max-w-5xl mx-auto mb-4 flex justify-center space-x-4">
+        <button
+          onClick={() => setPriceType('retail')}
+          className={`px-4 py-2 rounded ${
+            priceType === 'retail' ? 'bg-purple-700 text-white' : 'bg-gray-300 text-black'
+          }`}
+        >
+          {t('retail_price')}
+        </button>
+        <button
+          onClick={() => setPriceType('wholesale')}
+          className={`px-4 py-2 rounded ${
+            priceType === 'wholesale' ? 'bg-purple-700 text-white' : 'bg-gray-300 text-black'
+          }`}
+        >
+          {t('wholesale_price')}
+        </button>
+      </div>
+
       {/* جدول المنتجات */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-lg max-w-5xl mx-auto`}>
         <h2 className="text-xl font-bold text-center text-purple-700 mb-4">{t('added_products')}</h2>
@@ -230,7 +256,9 @@ const AddProduct = () => {
                   <tr key={product._id} className="border-t">
                     <td className="p-2 border">{product.name?.[i18n.language] || product.name?.en || ''}</td>
                     <td className="p-2 border">{product.description?.[i18n.language] || product.description?.en || ''}</td>
-                    <td className="p-2 border">{product.price} ر.س</td>
+                    <td className="p-2 border">
+                      {priceType === 'retail' ? product.priceRetail : product.priceWholesale} ر.س
+                    </td>
                     <td className="p-2 border">
                       <img
                         src={product.image}

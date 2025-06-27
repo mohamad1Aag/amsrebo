@@ -8,6 +8,7 @@ export default function RegisterForm() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState(""); // ✅ الحقل الجديد
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,7 @@ export default function RegisterForm() {
       const res = await fetch("https://my-backend-dgp2.onrender.com/api/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, phone, password }), // ✅ إضافة phone
       });
 
       const data = await res.json();
@@ -28,6 +29,7 @@ export default function RegisterForm() {
         alert(t("register_success_message"));
         setName("");
         setEmail("");
+        setPhone(""); // ✅ إعادة تعيين الحقل
         setPassword("");
       } else {
         alert(data.message || t("register_failed"));
@@ -41,12 +43,9 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleRegister} className="space-y-6">
+      {/* الاسم الكامل */}
       <div className="flex flex-col">
-        <label
-          className={`mb-2 font-semibold ${
-            darkMode ? "text-yellow-400" : "text-purple-800"
-          }`}
-        >
+        <label className={`mb-2 font-semibold ${darkMode ? "text-yellow-400" : "text-purple-800"}`}>
           {t("full_name")}
         </label>
         <input
@@ -62,12 +61,9 @@ export default function RegisterForm() {
         />
       </div>
 
+      {/* البريد الإلكتروني */}
       <div className="flex flex-col">
-        <label
-          className={`mb-2 font-semibold ${
-            darkMode ? "text-yellow-400" : "text-purple-800"
-          }`}
-        >
+        <label className={`mb-2 font-semibold ${darkMode ? "text-yellow-400" : "text-purple-800"}`}>
           {t("email")}
         </label>
         <input
@@ -83,12 +79,27 @@ export default function RegisterForm() {
         />
       </div>
 
+      {/* رقم الهاتف */}
       <div className="flex flex-col">
-        <label
-          className={`mb-2 font-semibold ${
-            darkMode ? "text-yellow-400" : "text-purple-800"
+        <label className={`mb-2 font-semibold ${darkMode ? "text-yellow-400" : "text-purple-800"}`}>
+          {t("phone") || "رقم الهاتف"}
+        </label>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          required
+          className={`px-4 py-3 border rounded-md focus:outline-none focus:ring-2 ${
+            darkMode
+              ? "border-yellow-400 focus:ring-yellow-300 bg-gray-800 text-white"
+              : "border-purple-300 focus:ring-purple-500 bg-white text-black"
           }`}
-        >
+        />
+      </div>
+
+      {/* كلمة المرور */}
+      <div className="flex flex-col">
+        <label className={`mb-2 font-semibold ${darkMode ? "text-yellow-400" : "text-purple-800"}`}>
           {t("password")}
         </label>
         <input
@@ -104,6 +115,7 @@ export default function RegisterForm() {
         />
       </div>
 
+      {/* زر التسجيل */}
       <button
         type="submit"
         disabled={loading}

@@ -94,6 +94,7 @@ function PointsBlock({ points }) {
 function EditUserForm({ userData, setUserData }) {
   const [name, setName] = useState(userData.name || "");
   const [email, setEmail] = useState(userData.email || "");
+  const [phone, setPhone] = useState(userData.phone || "");  // إضافة رقم الهاتف
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
@@ -104,7 +105,7 @@ function EditUserForm({ userData, setUserData }) {
     const token = localStorage.getItem("userToken");
 
     try {
-      const body = { name, email };
+      const body = { name, email, phone }; // أضف phone هنا
       if (password) body.password = password;
 
       const res = await fetch("https://my-backend-dgp2.onrender.com/api/users/profile", {
@@ -151,6 +152,18 @@ function EditUserForm({ userData, setUserData }) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
+          className="px-4 py-3 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+      </div>
+
+      {/* حقل رقم الهاتف */}
+      <div className="flex flex-col">
+        <label className="mb-2 font-semibold text-purple-800">{t("phone")}</label>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
           required
           className="px-4 py-3 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
         />

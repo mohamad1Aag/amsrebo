@@ -31,21 +31,26 @@ function SectionDetails() {
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [type, setType] = useState('مفرق');
 
+  const [saleType, setSaleType] = useState('مفرق'); // نوع البيع (مفرق أو جملة)
+
+  // مودالات التحكم
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [showAddToCartModal, setShowAddToCartModal] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
+  // فلترة وترتيب
   const [searchTerm, setSearchTerm] = useState('');
   const [priceOrder, setPriceOrder] = useState('');
   const [ratingOrder, setRatingOrder] = useState('');
 
+  // تقييمات
   const [ratingsByProduct, setRatingsByProduct] = useState({});
   const [averageRatings, setAverageRatings] = useState({});
 
+  // بيانات التقييم الجديد
   const [newRatingValue, setNewRatingValue] = useState(0);
   const [newReviewText, setNewReviewText] = useState('');
 
@@ -104,6 +109,7 @@ function SectionDetails() {
     return '';
   };
 
+  // فتح مودال التقييم
   const openRatingModal = (product) => {
     setSelectedProduct(product);
     setNewRatingValue(0);
@@ -111,6 +117,7 @@ function SectionDetails() {
     setShowRatingModal(true);
   };
 
+  // إرسال التقييم
   const submitRating = async () => {
     if (!selectedProduct || newRatingValue === 0) {
       setToastMessage(t('please_select_rating'));
@@ -149,6 +156,7 @@ function SectionDetails() {
     }
   };
 
+  // عرض نجوم التقييم (ثابتة)
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -161,6 +169,7 @@ function SectionDetails() {
     return stars;
   };
 
+  // عرض نجوم التقييم التفاعلية (اختيارية)
   const renderInteractiveStars = () => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -180,13 +189,14 @@ function SectionDetails() {
     return stars;
   };
 
+  // فتح مودال إضافة للسلة
   const openAddToCartModal = (product) => {
     setSelectedProduct(product);
     setQuantity(1);
-    setType('مفرق');
     setShowAddToCartModal(true);
   };
 
+  // تأكيد إضافة للسلة
   const confirmAddToCart = () => {
     if (quantity < 1) {
       setToastMessage(t('please_select_valid_quantity'));
@@ -195,21 +205,22 @@ function SectionDetails() {
       return;
     }
 
-    // تخزين بيانات المنتج الأساسية مع السلة
+    // حسب نوع البيع نستخدم السعر المناسب
+    const priceToUse = saleType === 'مفرق' ? selectedProduct.priceRetail : selectedProduct.priceWholesale;
+
     const newItem = {
       productId: selectedProduct._id,
       name: getLocalizedText(selectedProduct.name),
-      price: selectedProduct.price,
+      price: priceToUse,
       image: selectedProduct.image || 'https://dummyimage.com/150x150/000/fff.png&text=No+Image',
       quantity,
-      type,
-      adminId: selectedProduct.adminId || selectedProduct.vendorId || selectedProduct.ownerId || null, // إضافة adminId
-
+      type: saleType,
+      adminId: selectedProduct.adminId || selectedProduct.vendorId || selectedProduct.ownerId || null,
     };
 
     setCart(prevCart => {
       const existingIndex = prevCart.findIndex(
-        item => item.productId === selectedProduct._id && item.type === type
+        item => item.productId === selectedProduct._id && item.type === saleType
       );
 
       let updatedCart;
@@ -231,17 +242,21 @@ function SectionDetails() {
     setTimeout(() => setShowToast(false), 3000);
   };
 
+  // إغلاق مودال السلة
   const closeCartModal = () => {
     setShowCartModal(false);
     setQuantity(1);
-    setType('مفرق');
   };
 
   const filteredProducts = [...products]
     .filter(product => getLocalizedText(product.name).toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => {
-      if (priceOrder === 'asc') return a.price - b.price;
-      if (priceOrder === 'desc') return b.price - a.price;
+      // نرتب حسب السعر حسب نوع البيع المختار
+      const priceA = saleType === 'مفرق' ? a.priceRetail : a.priceWholesale;
+      const priceB = saleType === 'مفرق' ? b.priceRetail : b.priceWholesale;
+
+      if (priceOrder === 'asc') return priceA - priceB;
+      if (priceOrder === 'desc') return priceB - priceA;
       return 0;
     })
     .sort((a, b) => {
@@ -294,7 +309,34 @@ function SectionDetails() {
           </div>
         </section>
 
-        <div className="flex flex-col md:flex-row items-center gap-4 justify-between mb-8 mt-12">
+        {/* اختيار نوع البيع */}
+        <div className="flex justify-center gap-8 mt-10 mb-8 text-lg font-semibold text-purple-900">
+          <label className="cursor-pointer select-none flex items-center gap-2">
+            <input
+              type="radio"
+              name="saleType"
+              value="مفرق"
+              checked={saleType === 'مفرق'}
+              onChange={() => setSaleType('مفرق')}
+              className="cursor-pointer"
+            />
+            مفرق
+          </label>
+          <label className="cursor-pointer select-none flex items-center gap-2">
+            <input
+              type="radio"
+              name="saleType"
+              value="جملة"
+              checked={saleType === 'جملة'}
+              onChange={() => setSaleType('جملة')}
+              className="cursor-pointer"
+            />
+            جملة
+          </label>
+        </div>
+
+        {/* الفلاتر */}
+        <div className="flex flex-col md:flex-row items-center gap-4 justify-between mb-8">
           <input
             type="text"
             placeholder={t('search_products')}
@@ -347,6 +389,11 @@ function SectionDetails() {
                 {getLocalizedText(product.name)}
               </h4>
 
+              {/* عرض نوع البيع تحت اسم المنتج */}
+              <p className="text-center text-sm text-gray-400 mb-1">
+                {t('type_of_sale_label') || 'نوع البيع'}: <span className="font-semibold">{saleType}</span>
+              </p>
+
               <div className="mb-2 text-center">
                 <div className="inline-block">
                   {renderStars(Math.round(averageRatings[product._id]?.average || 0))}
@@ -356,8 +403,9 @@ function SectionDetails() {
                 </span>
               </div>
 
+              {/* السعر حسب نوع البيع المختار */}
               <p className="font-bold mt-1 text-center text-yellow-300">
-                {product.price} {t('currency')}
+                {saleType === 'مفرق' ? product.priceRetail : product.priceWholesale} {t('currency')}
               </p>
 
               <div className="flex gap-3 mt-4 w-full justify-center">
@@ -379,123 +427,101 @@ function SectionDetails() {
           ))}
         </div>
 
-        {showRatingModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50 p-4">
-            <div className="bg-gray-900 rounded-lg p-6 max-w-sm w-full text-white shadow-lg">
+        {/* مودال التقييم */}
+        {showRatingModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className={`bg-white rounded-lg p-6 w-11/12 max-w-lg ${darkMode ? 'bg-gray-800 text-white' : ''}`}>
               <h3 className="text-2xl font-bold mb-4">{t('add_review')}</h3>
-              <p className="mb-3"><strong>{t('product')}:</strong> {getLocalizedText(selectedProduct.name)}</p>
 
-              <div className="mb-3 flex gap-1 justify-center">
-                {renderInteractiveStars()}
+              <div className="mb-4">
+                <label className="block mb-1 font-semibold">{t('rating')}</label>
+                <div>{renderInteractiveStars()}</div>
               </div>
 
-              <textarea
-                rows={4}
-                placeholder={t('write_your_review')}
-                value={newReviewText}
-                onChange={e => setNewReviewText(e.target.value)}
-                className="w-full px-3 py-2 rounded text-black"
-              />
+              <div className="mb-4">
+                <label className="block mb-1 font-semibold">{t('review')}</label>
+                <textarea
+                  rows={4}
+                  className="w-full p-2 border rounded"
+                  value={newReviewText}
+                  onChange={(e) => setNewReviewText(e.target.value)}
+                />
+              </div>
 
-              <div className="flex justify-end gap-4 mt-4">
+              <div className="flex justify-end gap-4">
                 <button
                   onClick={() => setShowRatingModal(false)}
-                  className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-800"
+                  className="px-4 py-2 bg-gray-400 rounded hover:bg-gray-500"
                 >
-                  {t('close')}
+                  {t('cancel')}
                 </button>
                 <button
                   onClick={submitRating}
-                  className="px-4 py-2 rounded bg-purple-700 hover:bg-purple-800"
+                  className="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800"
                 >
-                  {t('save')}
+                  {t('submit')}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {showAddToCartModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50 p-4">
-            <div className="bg-gray-900 rounded-lg p-6 max-w-sm w-full text-white shadow-lg">
+        {/* مودال إضافة للسلة */}
+        {showAddToCartModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className={`bg-white rounded-lg p-6 w-11/12 max-w-md ${darkMode ? 'bg-gray-800 text-white' : ''}`}>
               <h3 className="text-2xl font-bold mb-4">{t('add_to_cart')}</h3>
-              <p className="mb-3"><strong>{t('product')}:</strong> {getLocalizedText(selectedProduct.name)}</p>
 
-              <label className="block mb-2">
-                {t('quantity')}:
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                  className="ml-2 px-2 py-1 rounded text-black w-20"
-                />
-              </label>
+              <p className="mb-4">{getLocalizedText(selectedProduct?.name)}</p>
 
-              <label className="block mb-4">
-                {t('type_of_sale')}:
-                <select
-                  value={type}
-                  onChange={e => setType(e.target.value)}
-                  className="ml-2 px-2 py-1 rounded text-black"
-                >
-                  <option value="مفرق">{t('retail')}</option>
-                  <option value="جملة">{t('wholesale')}</option>
-                </select>
-              </label>
+              <label className="block mb-2 font-semibold">{t('quantity')}</label>
+              <input
+                type="number"
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value, 10))}
+                className="w-full p-2 border rounded mb-4"
+              />
 
-              <div className="flex justify-end gap-4 mt-4">
+              <div className="flex justify-end gap-4">
                 <button
                   onClick={() => setShowAddToCartModal(false)}
-                  className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-800"
+                  className="px-4 py-2 bg-gray-400 rounded hover:bg-gray-500"
                 >
                   {t('cancel')}
                 </button>
                 <button
                   onClick={confirmAddToCart}
-                  className="px-4 py-2 rounded bg-yellow-500 text-gray-900 hover:bg-yellow-600"
+                  className="px-4 py-2 bg-yellow-500 text-gray-900 rounded hover:bg-yellow-600"
                 >
-                  {t('add_to_cart')}
+                  {t('confirm')}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {showCartModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50 p-4">
-            <div className="bg-gray-900 rounded-lg p-6 max-w-sm w-full text-white shadow-lg">
-              <h3 className="text-2xl font-bold mb-4">{t('added_to_cart')}</h3>
-              <img
-                src={selectedProduct.image || 'https://dummyimage.com/150x150/000/fff.png&text=No+Image'}
-                alt={getLocalizedText(selectedProduct.name)}
-                className="w-32 h-32 object-cover rounded mb-4 mx-auto"
-              />
-              <p className="mb-3"><strong>{t('product')}:</strong> {getLocalizedText(selectedProduct.name)}</p>
-              <p className="mb-3"><strong>{t('price')}:</strong> {selectedProduct.price} {t('currency')}</p>
-              <p className="mb-3"><strong>{t('quantity')}:</strong> {quantity}</p>
-              <p className="mb-3"><strong>{t('type_of_sale')}:</strong> {type}</p>
-
-              <div className="flex justify-end gap-4 mt-4">
+        {/* مودال السلة (تنبيه) */}
+        {showCartModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className={`bg-white rounded-lg p-6 w-96 ${darkMode ? 'bg-gray-800 text-white' : ''}`}>
+              <h3 className="text-xl font-bold mb-4">{t('added_to_cart')}</h3>
+              <p>{t('product_added_to_cart_successfully')}</p>
+              <div className="flex justify-end mt-6">
                 <button
                   onClick={closeCartModal}
-                  className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-800"
+                  className="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800"
                 >
                   {t('close')}
                 </button>
-                <button
-                  onClick={() => navigate('/cart')}
-                  className="px-4 py-2 rounded bg-yellow-500 text-gray-900 hover:bg-yellow-600"
-                >
-                  {t('go_to_cart')}
-                </button>
               </div>
             </div>
           </div>
         )}
 
+        {/* توست التنبيه */}
         {showToast && (
-          <div className="fixed bottom-10 right-10 bg-yellow-400 text-purple-900 px-6 py-3 rounded shadow-lg z-50 animate-fade-in-out">
+          <div className="fixed bottom-6 right-6 bg-yellow-400 text-purple-900 px-6 py-3 rounded shadow-lg animate-fade-in-out z-50">
             {toastMessage}
           </div>
         )}

@@ -167,6 +167,8 @@ const CaptainMap = ({ captainName, orders }) => {
               <Popup>
                 <div className="space-y-2">
                   <p><strong>رقم الطلب:</strong> {order._id}</p>
+                  <p><strong>اسم العميل:</strong> {order.userId?.name || '-'}</p>
+                  <p><strong>رقم الهاتف:</strong> {order.userPhone || '-'}</p>
                   <p><strong>الحالة:</strong> <span className="capitalize">{order.status}</span></p>
                   <p><strong>ملاحظات:</strong> {order.notes || '-'}</p>
                   

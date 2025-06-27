@@ -63,12 +63,16 @@ function Cart() {
     const userId = payload.id;
     const totalPrice = calculateTotal();
 
+    if (cart.length === 0) {
+      alert(t('cart_empty'));
+      return;
+    }
+
     try {
       // جلب بيانات المستخدم للتحقق من النقاط
       const userRes = await fetch(`https://my-backend-dgp2.onrender.com/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const userData = await userRes.json();
       if (!userRes.ok) throw new Error('فشل في تحميل بيانات المستخدم');
 
@@ -80,7 +84,37 @@ function Cart() {
         return;
       }
 
-      // فقط خصم النقاط (بدون إنشاء طلب جديد)
+      // تجهيز بيانات المنتجات بشكل متوافق مع الـ backend
+      const productsForOrder = cart.map((item) => ({
+        productId: item._id || item.id || item.productId,
+        vendorId: item.adminId || item.vendorId || null,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        type: item.type || 'مفرق',
+      }));
+
+      // إنشاء الطلب في الـ backend
+      const orderRes = await fetch('https://my-backend-dgp2.onrender.com/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId,
+          products: productsForOrder,
+          deliveryLocation,
+          notes: '',
+        }),
+      });
+
+      if (!orderRes.ok) {
+        const errorData = await orderRes.json();
+        throw new Error(errorData.message || 'فشل إنشاء الطلب');
+      }
+
+      // خصم النقاط بعد إنشاء الطلب
       const patchRes = await fetch(`https://my-backend-dgp2.onrender.com/api/users/pointcart/${userId}/points`, {
         method: 'PATCH',
         headers: {
@@ -95,7 +129,7 @@ function Cart() {
         throw new Error(errData.message || 'خطأ في خصم النقاط');
       }
 
-      alert(t('points_deducted_success')); // مثلاً "تم خصم النقاط بنجاح"
+      alert(t('order_success')); // مثلاً "تم إنشاء الطلب وخصم النقاط بنجاح"
       setCart([]);
       setDeliveryLocation(null);
       localStorage.removeItem('cart');

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { ThemeContext } from '../../../../src/ThemeContext'; // عدل حسب مكان ملفك
+import { ThemeContext } from '../../../../src/ThemeContext';
 
 const ListProducts = () => {
   const { t, i18n } = useTranslation();
@@ -12,12 +12,12 @@ const ListProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [priceType, setPriceType] = useState('retail'); // retail أو wholesale
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // جلب المنتجات والتقييمات
   const fetchProducts = async () => {
     try {
       const res = await axios.get('https://my-backend-dgp2.onrender.com/api/products');
@@ -42,7 +42,6 @@ const ListProducts = () => {
     }
   };
 
-  // عرض النجوم حسب المتوسط
   const renderStars = (average) => {
     const rounded = Math.round(average);
     const stars = [];
@@ -56,7 +55,6 @@ const ListProducts = () => {
     return <div className="mt-1 text-lg">{stars}</div>;
   };
 
-  // فلترة المنتجات بناء على الاسم (اللغة الحالية)
   const filteredProducts = products.filter(product => {
     const name = product.name?.[i18n.language] || product.name?.en || "";
     return name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -81,10 +79,13 @@ const ListProducts = () => {
     try {
       const formData = new FormData();
 
-      // نرسل الاسم والوصف كـ JSON strings
       formData.append('name', JSON.stringify(editingProduct.name));
       formData.append('description', JSON.stringify(editingProduct.description));
-      formData.append('price', editingProduct.price);
+
+      // أضف السعرين
+      formData.append('priceRetail', editingProduct.priceRetail);
+      formData.append('priceWholesale', editingProduct.priceWholesale);
+
       if (selectedFile) {
         formData.append('image', selectedFile);
       }
@@ -110,7 +111,7 @@ const ListProducts = () => {
     if (!window.confirm(t('confirm_delete') || "هل أنت متأكد من الحذف؟")) return;
 
     try {
-      await axios.delete(`https://my-backend-dgp2.onrender.com/api/products/delete/${id}`);
+      await axios.delete(`https://my-backend-dgp2.onrender.com/api/products/${id}`);  // عدلت الرابط هنا
       setProducts(products.filter(product => product._id !== id));
     } catch (error) {
       alert(t('error_deleting_product') || "حدث خطأ أثناء الحذف");
@@ -118,7 +119,6 @@ const ListProducts = () => {
     }
   };
 
-  // دالة لعرض الاسم/الوصف حسب اللغة الحالية
   const getLocalizedText = (obj) => {
     if (!obj) return '';
     return obj[i18n.language] || obj.en || '';
@@ -135,6 +135,22 @@ const ListProducts = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className={`w-full max-w-md mx-auto mb-6 px-4 py-2 rounded border shadow block focus:outline-none focus:ring-2 focus:ring-purple-600 ${darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-black border-gray-300'}`}
       />
+
+      {/* أزرار اختيار نوع السعر */}
+      <div className="max-w-md mx-auto flex justify-center mb-6 space-x-4">
+        <button
+          onClick={() => setPriceType('retail')}
+          className={`px-4 py-2 rounded ${priceType === 'retail' ? 'bg-purple-700 text-white' : 'bg-gray-300 text-black'}`}
+        >
+          {t('retail_price')}
+        </button>
+        <button
+          onClick={() => setPriceType('wholesale')}
+          className={`px-4 py-2 rounded ${priceType === 'wholesale' ? 'bg-purple-700 text-white' : 'bg-gray-300 text-black'}`}
+        >
+          {t('wholesale_price')}
+        </button>
+      </div>
 
       {filteredProducts.length === 0 ? (
         <p className="text-center text-purple-900">{t('no_results')}</p>
@@ -158,7 +174,9 @@ const ListProducts = () => {
                     {ratings[product._id] !== undefined && renderStars(ratings[product._id])}
                   </td>
                   <td className="p-3">{getLocalizedText(product.description)}</td>
-                  <td className="p-3">{product.price} {t('sar')}</td>
+                  <td className="p-3">
+                    {priceType === 'retail' ? product.priceRetail : product.priceWholesale} {t('sar')}
+                  </td>
                   <td className="p-3">
                     <img
                       src={product.image}
@@ -217,11 +235,20 @@ const ListProducts = () => {
               placeholder={t('description')}
               className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'}`}
             />
+            {/* حقل سعر المفرق */}
             <input
               type="number"
-              value={editingProduct.price}
-              onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
-              placeholder={t('price')}
+              value={editingProduct.priceRetail || ''}
+              onChange={(e) => setEditingProduct({ ...editingProduct, priceRetail: e.target.value })}
+              placeholder={t('price_retail')}
+              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'}`}
+            />
+            {/* حقل سعر الجملة */}
+            <input
+              type="number"
+              value={editingProduct.priceWholesale || ''}
+              onChange={(e) => setEditingProduct({ ...editingProduct, priceWholesale: e.target.value })}
+              placeholder={t('price_wholesale')}
               className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'}`}
             />
             <input
