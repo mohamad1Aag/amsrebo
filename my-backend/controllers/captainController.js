@@ -92,8 +92,13 @@ exports.updateLocation = async (req, res) => {
 };
 exports.uploadProfileImage = async (req, res) => {
   try {
-    const captainId = req.params.id; // من المسار
-    const imageUrl = req.file.path; // رابط Cloudinary بعد الرفع
+    const captainId = req.params.id;
+
+    if (!req.file || !req.file.path) {
+      return res.status(400).json({ message: "لم يتم رفع أي صورة" });
+    }
+
+    const imageUrl = req.file.path;
 
     const captain = await Captain.findByIdAndUpdate(
       captainId,
@@ -103,11 +108,15 @@ exports.uploadProfileImage = async (req, res) => {
 
     if (!captain) return res.status(404).json({ message: "الكابتن غير موجود" });
 
-    res.json({ message: "تم رفع الصورة بنجاح", profileImage: imageUrl });
+    return res.status(200).json({
+      message: "تم رفع الصورة بنجاح",
+      profileImage: imageUrl,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({ message: err.message });
   }
 };
+
 
 exports.getCaptainProfile = async (req, res) => {
   try {
