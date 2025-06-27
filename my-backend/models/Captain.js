@@ -1,26 +1,14 @@
 const mongoose = require('mongoose');
 
 const captainSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
+  name: { type: String, required: true },
+  phone: { type: String, required: true, unique: true },
+  email: { type: String, unique: true },
+  password: { type: String, required: true },
+  profileImage: { type: String, default: '' }, // ✅ صورة الملف الشخصي
   currentLocation: {
-    lat: { type: Number, required: false },
-    lng: { type: Number, required: false },
+    lat: { type: Number },
+    lng: { type: Number },
   },
   status: {
     type: String,

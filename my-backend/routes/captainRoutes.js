@@ -9,5 +9,6 @@ router.post('/login', captainController.loginCaptain);
 
 // راوت محمي لتحديث الموقع
 router.put('/location', authCaptain, captainController.updateLocation);
+router.put('/upload-profile/:id', upload.single('image'), captainController.uploadProfileImage);
 
 module.exports = router;

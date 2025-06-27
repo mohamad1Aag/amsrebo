@@ -90,3 +90,22 @@ exports.updateLocation = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    const captainId = req.params.id; // من المسار
+    const imageUrl = req.file.path; // رابط Cloudinary بعد الرفع
+
+    const captain = await Captain.findByIdAndUpdate(
+      captainId,
+      { profileImage: imageUrl },
+      { new: true }
+    );
+
+    if (!captain) return res.status(404).json({ message: "الكابتن غير موجود" });
+
+    res.json({ message: "تم رفع الصورة بنجاح", profileImage: imageUrl });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
