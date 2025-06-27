@@ -132,3 +132,19 @@ exports.getCaptainProfile = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+exports.getCaptainByName = async (req, res) => {
+  try {
+    const captain = await Captain.findOne({ name: req.params.name });
+    if (!captain) return res.status(404).json({ message: 'الكابتن غير موجود' });
+    
+    res.json({
+      profileImage: captain.profileImage || '',
+      name: captain.name,
+      email: captain.email,
+      status: captain.status,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطأ في الخادم' });
+  }
+};
