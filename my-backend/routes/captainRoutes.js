@@ -11,5 +11,7 @@ router.post('/login', captainController.loginCaptain);
 // راوت محمي لتحديث الموقع
 router.put('/location', authCaptain, captainController.updateLocation);
 router.put('/upload-profile/:id', upload.single('image'), captainController.uploadProfileImage);
+// راوت لجلب بيانات الكابتن (بروفايل) مع التحقق من التوكن
+router.get('/profile', authCaptain, captainController.getCaptainProfile);
 
 module.exports = router;
