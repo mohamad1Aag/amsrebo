@@ -13,6 +13,6 @@ const userSchema = new mongoose.Schema({
   facebookId: { type: String } // لتخزين ID من Facebook
 }, { timestamps: true });
 
-const User = mongoose.models.user || mongoose.model('user', userSchema);
+const user = mongoose.models.user || mongoose.model('user', userSchema);
 
 module.exports = user;
