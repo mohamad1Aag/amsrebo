@@ -5,33 +5,32 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const PointHistory = require('../models/PointHistory');
 
-
 // إعداد الإرسال عبر nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USERNAME, // بريدك
-    pass: process.env.EMAIL_PASSWORD, // كلمة المرور أو App Password
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
-
 
 // تسجيل مستخدم عادي
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, password } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists)
       return res.status(400).json({ message: "البريد الإلكتروني مستخدم مسبقًا" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({ name, email, phone, password: hashedPassword });
 
     return res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -39,7 +38,6 @@ const registerUser = async (req, res) => {
     return res.status(500).json({ message: "حدث خطأ أثناء التسجيل" });
   }
 };
-
 
 // تسجيل دخول عادي
 const loginUser = async (req, res) => {
@@ -55,36 +53,37 @@ const loginUser = async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    phone: user.phone,
     token: generateToken(user._id),
   });
 };
 
 // تسجيل دخول عبر Google
 const googleLogin = async (req, res) => {
-  const { email, name, googleId } = req.body;
+  const { email, name, googleId, phone } = req.body;
 
   let user = await User.findOne({ email });
   if (user) {
-    // إذا موجود فقط تأكد من تخزين googleId
     if (!user.googleId) {
       user.googleId = googleId;
       await user.save();
     }
   } else {
-    user = await User.create({ name, email, googleId });
+    user = await User.create({ name, email, phone, googleId });
   }
 
   res.json({
     _id: user._id,
     name: user.name,
     email: user.email,
+    phone: user.phone,
     token: generateToken(user._id),
   });
 };
 
 // تسجيل دخول عبر Facebook
 const facebookLogin = async (req, res) => {
-  const { email, name, facebookId } = req.body;
+  const { email, name, facebookId, phone } = req.body;
 
   let user = await User.findOne({ email });
   if (user) {
@@ -93,51 +92,44 @@ const facebookLogin = async (req, res) => {
       await user.save();
     }
   } else {
-    user = await User.create({ name, email, facebookId });
+    user = await User.create({ name, email, phone, facebookId });
   }
 
   res.json({
     _id: user._id,
     name: user.name,
     email: user.email,
+    phone: user.phone,
     token: generateToken(user._id),
   });
 };
 
 const logoutUser = async (req, res) => {
-  // لو كنت تستخدم JWT مع cookies
   res.clearCookie("token");
-
-  // رجّع رسالة بسيطة
   res.status(200).json({ message: "تم تسجيل الخروج بنجاح" });
 };
+
 const getUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id; // افترض إنك تستخدم Middleware للتحقق من التوكن وتحط بيانات المستخدم في req.user
-    const user = await User.findById(userId).select('-password'); // استبعد كلمة السر من البيانات
-
-    if (!user) {
-      return res.status(404).json({ message: "المستخدم غير موجود" });
-    }
-
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('-password');
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
     res.json(user);
   } catch (error) {
     console.error("Get profile error:", error.message);
     res.status(500).json({ message: "حدث خطأ أثناء جلب البيانات" });
   }
 };
+
 const updateUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id; // بيانات المستخدم من التوكن
+    const userId = req.user._id;
     const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
 
-    if (!user) {
-      return res.status(404).json({ message: "المستخدم غير موجود" });
-    }
-
-    // تحديث الحقول حسب المدخلات (مثلاً: name و email و password)
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone;
 
     if (req.body.password) {
       user.password = await bcrypt.hash(req.body.password, 10);
@@ -149,33 +141,32 @@ const updateUserProfile = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id), // تحديث التوكن بعد التعديل
+      phone: user.phone,
+      token: generateToken(user._id),
     });
   } catch (error) {
     console.error("Update profile error:", error.message);
     res.status(500).json({ message: "حدث خطأ أثناء تحديث البيانات" });
   }
 };
+
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password'); // نستثني كلمات المرور
+    const users = await User.find().select('-password');
     res.json(users);
   } catch (error) {
     console.error("حدث خطأ أثناء جلب المستخدمين:", error.message);
     res.status(500).json({ message: "حدث خطأ أثناء جلب المستخدمين" });
   }
 };
+
 const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
-
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "المستخدم غير موجود" });
-    }
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
 
     await user.deleteOne();
-
     res.status(200).json({ message: "تم حذف المستخدم بنجاح" });
   } catch (error) {
     console.error("Delete user error:", error.message);
@@ -183,10 +174,9 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// تحديث نقاط المستخدم
 const updateUserPoints = async (req, res) => {
   const userId = req.params.id;
-  const newPoint = req.body.point;  // نستخدم نفس اسم الحقل في الموديل
+  const newPoint = req.body.point;
 
   if (typeof newPoint !== 'number' || newPoint < 0) {
     return res.status(400).json({ message: 'النقاط غير صالحة' });
@@ -196,7 +186,7 @@ const updateUserPoints = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-    user.point = newPoint;  // عدّل الحقل هنا
+    user.point = newPoint;
     await user.save();
 
     res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
@@ -206,10 +196,6 @@ const updateUserPoints = async (req, res) => {
   }
 };
 
-
-
-
-
 const forgotPasswordByUsername = async (req, res) => {
   const { username } = req.body;
 
@@ -218,7 +204,6 @@ const forgotPasswordByUsername = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'اسم المستخدم غير موجود' });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-
     const resetLink = `https://your-frontend-url.com/reset-password/${token}`;
 
     await transporter.sendMail({
@@ -233,6 +218,7 @@ const forgotPasswordByUsername = async (req, res) => {
     res.status(500).json({ message: "فشل إرسال البريد الإلكتروني" });
   }
 };
+
 const getResetPasswordInfo = async (req, res) => {
   const { token } = req.params;
 
@@ -247,10 +233,9 @@ const getResetPasswordInfo = async (req, res) => {
   }
 };
 
-
 const updateUserWallet = async (req, res) => {
   const userId = req.params.id;
-  const { amount } = req.body; // المبلغ المراد خصمه (يمكن يكون سالب أو موجب)
+  const { amount } = req.body;
 
   try {
     const user = await User.findById(userId);
@@ -260,7 +245,7 @@ const updateUserWallet = async (req, res) => {
       return res.status(400).json({ message: 'Insufficient wallet balance' });
     }
 
-    user.wallet += amount; // اضافة او خصم المبلغ
+    user.wallet += amount;
     await user.save();
 
     res.json({ message: 'Wallet updated successfully', wallet: user.wallet });
@@ -272,9 +257,7 @@ const updateUserWallet = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (error) {
     console.error(error);
@@ -282,10 +265,9 @@ const getUserById = async (req, res) => {
   }
 };
 
-
 const updatecartUserPoints = async (req, res) => {
   const userId = req.params.id;
-  const newPoint = req.body.point;  // النقاط الجديدة بعد الخصم
+  const newPoint = req.body.point;
 
   if (typeof newPoint !== 'number' || newPoint < 0) {
     return res.status(400).json({ message: 'النقاط غير صالحة' });
@@ -295,17 +277,15 @@ const updatecartUserPoints = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-    // احسب الفرق بين النقاط القديمة والجديدة (لنعرف مقدار الخصم)
     const pointsDifference = newPoint - user.point;
 
     user.point = newPoint;
     await user.save();
 
-    // سجل العملية في سجل النقاط فقط إذا كانت نقاط المستخدم انقصت (خصم)
     if (pointsDifference < 0) {
       await PointHistory.create({
         userId,
-        pointsChanged: pointsDifference, // قيمة سالبة تعبر عن خصم
+        pointsChanged: pointsDifference,
         type: 'خصم نقاط شراء',
         description: 'تم خصم النقاط بعد تأكيد طلب الشراء',
       });
@@ -318,11 +298,10 @@ const updatecartUserPoints = async (req, res) => {
   }
 };
 
-
 const getUserPointHistory = async (req, res) => {
   const userId = req.params.id;
   try {
-    const history = await PointHistory.find({ userId }).sort({ date: -1 }); // أحدث العمليات أولاً
+    const history = await PointHistory.find({ userId }).sort({ date: -1 });
     res.json(history);
   } catch (err) {
     console.error(err);
@@ -330,21 +309,16 @@ const getUserPointHistory = async (req, res) => {
   }
 };
 
-
-
 const addPointsToUser = async (req, res) => {
   try {
     const { userId, points, description } = req.body;
 
-    // تأكد أن المستخدم موجود
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
 
-    // تحديث النقاط
     user.point = (user.point || 0) + points;
-        await user.save();
+    await user.save();
 
-    // إنشاء سجل في جدول PointHistory
     const history = new PointHistory({
       userId,
       pointsChanged: points,
@@ -353,9 +327,6 @@ const addPointsToUser = async (req, res) => {
     });
     await history.save();
 
-    // (اختياري) إرسال إشعار إذا عندك نظام إشعارات
-    // sendNotificationToUser(userId, `تم ${points > 0 ? 'إضافة' : 'خصم'} ${Math.abs(points)} نقطة`);
-
     res.status(200).json({ success: true, message: 'تم تحديث النقاط وتسجيل العملية في السجل' });
   } catch (error) {
     console.error('خطأ في شحن النقاط:', error);
@@ -363,33 +334,22 @@ const addPointsToUser = async (req, res) => {
   }
 };
 
-
-module.exports ={updateUserPoints,
-   registerUser,
-    loginUser,
-    logoutUser,
-     googleLogin,
-      facebookLogin ,
-      getUserProfile,
-      updateUserProfile,
-       getAllUsers,
-       deleteUser,
-       forgotPasswordByUsername,
-        getResetPasswordInfo ,
-        updateUserWallet,
-        getUserById,
-        updatecartUserPoints,
-        getUserPointHistory,
-        addPointsToUser};
-
-
-
-
-
-
-
-
-
-
-
-
+module.exports = {
+  updateUserPoints,
+  registerUser,
+  loginUser,
+  logoutUser,
+  googleLogin,
+  facebookLogin,
+  getUserProfile,
+  updateUserProfile,
+  getAllUsers,
+  deleteUser,
+  forgotPasswordByUsername,
+  getResetPasswordInfo,
+  updateUserWallet,
+  getUserById,
+  updatecartUserPoints,
+  getUserPointHistory,
+  addPointsToUser
+};

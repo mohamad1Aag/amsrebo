@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     min: [0, 'يجب أن تكون النقاط رقمًا موجبًا'],
     default: 0,    // نقطة البداية لكل مستخدم جديد
   }, 
+  phone:    { type: String, required: true }, // ✅ رقم الهاتف مضاف هنا
   password: { type: String },  // مش لازم كلمة مرور لو Google أو Facebook
   googleId: { type: String },  // لتخزين ID من Google
   facebookId: { type: String } // لتخزين ID من Facebook
