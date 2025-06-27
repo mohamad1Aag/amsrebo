@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../middlewares/cloudinary');
 const authCaptain = require('../middlewares/authCaptain');
 const captainController = require('../controllers/captainController');
 
