@@ -5,7 +5,8 @@ const productSchema = new mongoose.Schema({
     ar: { type: String, required: true },
     en: { type: String, required: true },
   },
-  price: { type: Number, required: true },
+  priceRetail: { type: Number, required: true }, // سعر المفرق
+  priceWholesale: { type: Number, required: true }, // سعر الجملة
   description: {
     ar: { type: String },
     en: { type: String },

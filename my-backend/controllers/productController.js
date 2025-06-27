@@ -10,7 +10,7 @@ exports.createProduct = async (req, res) => {
     console.log(req.file);
 
     // فك name و description لو جاؤا كنص JSON
-    let { name, price, description, section, adminId } = req.body;
+    let { name, priceRetail, priceWholesale, description, section, adminId } = req.body;
 
     if (typeof name === 'string') {
       name = JSON.parse(name);
@@ -25,7 +25,8 @@ exports.createProduct = async (req, res) => {
 
     const newProduct = new Product({
       name,
-      price,
+      priceRetail,
+      priceWholesale,
       description,
       section,
       image: imageUrl,
@@ -77,7 +78,7 @@ exports.deleteProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    let { name, price, description } = req.body;
+    let { name, priceRetail, priceWholesale, description } = req.body;
 
     if (typeof name === 'string') {
       name = JSON.parse(name);
@@ -90,7 +91,8 @@ exports.updateProduct = async (req, res) => {
 
     const updatedData = {
       name,
-      price,
+      priceRetail,
+      priceWholesale,
       description,
     };
 
