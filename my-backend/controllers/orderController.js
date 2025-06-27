@@ -133,13 +133,14 @@ exports.assignCaptainNameToOrder = async (req, res) => {
 // جلب كل الكباتن
 exports.getAllCaptains = async (req, res) => {
   try {
-    const captains = await Captain.find();
+    const captains = await Captain.find({ status: "available" }); // جلب فقط الكباتن المتاحين
     res.json(captains);
   } catch (err) {
     console.error('خطأ في جلب الكباتن:', err.message);
     res.status(500).json({ message: 'خطأ في جلب الكباتن' });
   }
 };
+
 
 
 
