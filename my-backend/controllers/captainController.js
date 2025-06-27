@@ -109,3 +109,17 @@ exports.uploadProfileImage = async (req, res) => {
   }
 };
 
+exports.getCaptainProfile = async (req, res) => {
+  try {
+    const captainId = req.params.id;
+
+    const captain = await Captain.findById(captainId).select('-password');
+    if (!captain) {
+      return res.status(404).json({ message: 'الكابتن غير موجود' });
+    }
+
+    res.json(captain);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
