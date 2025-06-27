@@ -120,7 +120,7 @@ exports.uploadProfileImage = async (req, res) => {
 
 exports.getCaptainProfile = async (req, res) => {
   try {
-    const captainId = req.params.id;
+    const captainId = req.captainId; // ✅ استخدم المعرف من التوكن
 
     const captain = await Captain.findById(captainId).select('-password');
     if (!captain) {
