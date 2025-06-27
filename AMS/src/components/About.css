@@ -1,0 +1,56 @@
+.bigcontainerer{
+    display: flex;
+        flex-direction: row;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+}
+
+.About-container {
+    max-width: 350px;
+    display: flex;
+    font-family: 'Arial', sans-serif;
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 1);
+    color: rgb(0, 0, 0);
+    direction: rtl;
+    text-align: right;
+    flex-direction: column;
+    align-content: center;
+    flex-wrap: wrap;
+  }
+  
+  header h1 {
+    color: #000000;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .section {
+    margin-bottom: 2rem;
+  }
+  
+  .section h2 {
+    color: #060e0a;
+    margin-bottom: 0.5rem;
+  }
+  
+  .section p,
+  .section ul {
+    line-height: 1.8;
+    font-size: 1.1rem;
+  }
+  
+  .section ul {
+    list-style: square inside;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #00687a;
+    color: hwb(0 100% 0%);
+    border-radius: 8px;
+  }
+  

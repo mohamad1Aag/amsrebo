@@ -1,0 +1,29 @@
+
+
+.cardDashboardforViewInformation{
+    background-color: transparent;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content:center;
+    align-items: center;
+}
+.smallCard {
+  
+    display: flex;
+    background: linear-gradient(to top, #00b4db, #08ff00);
+    margin: 3px;
+    border-radius: 4%;
+    box-shadow: inset;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+.p1{ 
+    color: blanchedalmond;
+}
+.p3{
+    color: beige;
+}

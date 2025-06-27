@@ -1,0 +1,85 @@
+.profile-container {
+  max-width: 450px;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 180, 219, 0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  direction: rtl; /* للغة العربية */
+}
+
+.profile-card {
+  padding: 1.5rem;
+}
+
+.profile-title {
+  font-size: 1.6rem;
+  color: #4a90e2;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 2px solid #4a90e2;
+  padding-bottom: 0.4rem;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+.btn-save {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 12px 0;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-save:hover {
+  background-color: #357ABD;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .profile-title {
+    font-size: 1.4rem;
+  }
+
+  .btn-save {
+    font-size: 1rem;
+  }
+}

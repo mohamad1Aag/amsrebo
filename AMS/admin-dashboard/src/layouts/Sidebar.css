@@ -1,0 +1,47 @@
+/* src/components/Sidebar.css */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  align-items: flex-start;
+}
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: linear-gradient(to left, #00b3db88,#00b3dba4, #08ff00);
+    color: rgb(255, 255, 255);
+    padding: 20px;
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
+  
+  .brand {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar-menu li {
+    margin-bottom: 20px;
+  }
+  
+  .sidebar-menu a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  
+  .sidebar-menu a:hover {
+    color: #ffd700;
+  }
+  

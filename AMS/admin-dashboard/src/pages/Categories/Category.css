@@ -1,0 +1,197 @@
+.allsection{
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
+      align-items: center;  
+}
+.addsection{
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
+      align-items: center;  
+}
+.addSectionForm {
+  width: 100%;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: linear-gradient(to bottom right, #fdfbfb, #ebedee);
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+}
+
+.addSectionForm h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #00b4db;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.addSectionForm .form-group {
+  position: relative;
+  margin-bottom: 1.2rem;
+}
+
+.addSectionForm input[type="text"],
+.addSectionForm textarea,
+.addSectionForm input[type="file"] {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border 0.3s ease;
+}
+
+.addSectionForm input[type="text"]:focus,
+.addSectionForm textarea:focus {
+  border: 1px solid #00b4db;
+  outline: none;
+}
+
+.addSectionForm textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.addSectionForm .form-group i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.addSectionForm .note {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.addSectionForm button {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #00b4db, #0083b0);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.addSectionForm button:hover {
+  background: linear-gradient(to right, #009ac3, #006e8a);
+}
+
+@media (max-width: 600px) {
+  .addSectionForm {
+    padding: 0.1rem;
+  }
+}
+
+/* allsection */
+.allsection {
+  width: 90%;
+  max-width: 1000px;
+  margin: 2rem auto;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+}
+
+.allsection h2 {
+  margin-bottom: 1.5rem;
+  color: #00b4db;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.allsection input[type="text"] {
+  padding: 0.75rem;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.allsection input[type="text"]:focus {
+  border-color: #00b4db;
+  outline: none;
+}
+
+.allsection table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: #fafafa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.allsection th,
+.allsection td {
+  padding: 1rem;
+  text-align: right;
+  border-bottom: 1px solid #ddd;
+}
+
+.allsection th {
+  background: #00b4db;
+  color: white;
+  font-weight: bold;
+}
+
+.allsection td img {
+  width: 160px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.allsection p {
+  text-align: center;
+  color: #777;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .allsection {
+    padding: 0rem;
+    width: 80%;
+  }
+  .allsection .sectiontable{
+    width: 100%; /* نملأ العرض */
+    font-size: 0.75rem; /* نص أصغر */
+    table-layout: fixed; /* منع الجدول من التمدد غير الضروري */
+  }
+
+   .tablesectionimage {
+    width: 25px !important;
+  }
+  .allsection input[type="text"] {
+    padding: 0rem;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+}
