@@ -7,6 +7,16 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
 
+  userName: {
+    type: String,
+    default: '',  // يمكن تعديلها لاحقًا عند الإنشاء
+  },
+
+  userPhone: {
+    type: String,
+    default: '',  // رقم الهاتف كحقل نصي
+  },
+
   products: [
     {
       productId: {
@@ -61,13 +71,13 @@ const orderSchema = new mongoose.Schema({
 
   captainId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Captain',  // ربط الطلب بالكابتن (اختياري)
+    ref: 'Captain',
     default: null,
   },
 
   captainName: {
     type: String,
-    default: '', // اسم الكابتن كحقل نصي، فارغ بشكل افتراضي
+    default: '',
   },
 
   createdAt: {

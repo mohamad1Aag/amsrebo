@@ -12,16 +12,27 @@ exports.createOrder = async (req, res) => {
   }
 
   try {
+    // تحقق من معلومات كل منتج
     for (let product of products) {
       if (!product.productId || !product.vendorId || !product.name || !product.price) {
         return res.status(400).json({ message: 'بعض معلومات المنتجات ناقصة.' });
       }
     }
 
+    // احسب المجموع الكلي
     const total = products.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
+    // جلب بيانات المستخدم (مثلاً رقم الهاتف) من قاعدة البيانات
+    const user = await User.findById(userId).select('phone name');
+    if (!user) {
+      return res.status(404).json({ message: 'المستخدم غير موجود.' });
+    }
+
+    // أضف رقم الهاتف واسم المستخدم مباشرة مع الطلب
     const order = new Order({
       userId,
+      userName: user.name,       // إضافة اسم المستخدم
+      userPhone: user.phone,     // إضافة رقم الهاتف
       products,
       deliveryLocation,
       notes,
@@ -35,6 +46,7 @@ exports.createOrder = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ أثناء إنشاء الطلب.' });
   }
 };
+
 
 // جلب كل الطلبات الخاصة بمستخدم معيّن مع التحقق من صحة userId
 exports.getOrdersByUser = async (req, res) => {
