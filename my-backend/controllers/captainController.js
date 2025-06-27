@@ -148,3 +148,27 @@ exports.getCaptainByName = async (req, res) => {
     res.status(500).json({ message: 'خطأ في الخادم' });
   }
 };
+exports.updateCaptainStatus = async (req, res) => {
+  try {
+    const { captainId } = req.params;
+    const { status } = req.body;
+
+    if (!["available", "resting"].includes(status)) {
+      return res.status(400).json({ message: "حالة غير صحيحة" });
+    }
+
+    const updatedCaptain = await Captain.findByIdAndUpdate(
+      captainId,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedCaptain) {
+      return res.status(404).json({ message: "الكابتن غير موجود" });
+    }
+
+    res.json(updatedCaptain);
+  } catch (err) {
+    res.status(500).json({ message: "خطأ في تحديث الحالة" });
+  }
+};

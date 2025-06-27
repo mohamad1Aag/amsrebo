@@ -14,4 +14,6 @@ router.put('/upload-profile/:id', upload.single('image'), captainController.uplo
 // راوت لجلب بيانات الكابتن (بروفايل) مع التحقق من التوكن
 router.get('/profile', authCaptain, captainController.getCaptainProfile);
 router.get('/by-name/:name', captainController.getCaptainByName);
+router.patch("/:captainId/status", captainController.updateCaptainStatus);
+
 module.exports = router;
