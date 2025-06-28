@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Sidebar from "../../layouts/Sidebar";
+import Header from "../../../../src/components/Header"; // استيراد الهيدر
 import axios from "axios";
+import { useTranslation } from "react-i18next";
+import { ThemeContext } from "../../../../src/ThemeContext"; // استيراد ThemeContext عدل المسار حسب مشروعك
 
 export default function User() {
+  const { t } = useTranslation();
+  const { darkMode } = useContext(ThemeContext); // استخدم darkMode بدلاً من theme
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,20 +30,27 @@ export default function User() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      // تأكد من أن البيانات مصفوفة
       setUsers(
         Array.isArray(response.data)
           ? response.data
           : response.data.users || []
       );
     } catch (error) {
-      console.error("خطأ أثناء جلب المستخدمين:", error);
-      alert("فشل في جلب بيانات المستخدمين، تحقق من الاتصال أو التوثيق");
+      console.error("Error fetching users:", error);
+      alert(
+        t("failed_fetch_users") ||
+          "فشل في جلب بيانات المستخدمين، تحقق من الاتصال أو التوثيق"
+      );
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا المستخدم؟")) return;
+    if (
+      !window.confirm(
+        t("confirm_delete_user") || "هل أنت متأكد من حذف هذا المستخدم؟"
+      )
+    )
+      return;
     try {
       await axios.delete(
         `https://my-backend-dgp2.onrender.com/api/users/${id}`,
@@ -46,10 +59,10 @@ export default function User() {
         }
       );
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
-      alert("تم حذف المستخدم بنجاح");
+      alert(t("user_deleted_success") || "تم حذف المستخدم بنجاح");
     } catch (error) {
-      console.error("خطأ أثناء حذف المستخدم:", error);
-      alert("حدث خطأ أثناء حذف المستخدم");
+      console.error("Error deleting user:", error);
+      alert(t("error_deleting_user") || "حدث خطأ أثناء حذف المستخدم");
     }
   };
 
@@ -60,26 +73,19 @@ export default function User() {
 
   const handlePointChange = (e) => {
     const value = e.target.value;
-    // منع القيم السالبة أو الفارغة
-    if (value === "" || Number(value) < 0) {
-      setPointToAdd(0);
-    } else {
-      setPointToAdd(Number(value));
-    }
+    setPointToAdd(value === "" || Number(value) < 0 ? 0 : Number(value));
   };
 
   const handlePointSubmit = async (e) => {
     e.preventDefault();
     if (pointToAdd <= 0) {
-      alert("يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
+      alert(t("enter_valid_points") || "يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
       return;
     }
-
     try {
       const user = users.find((u) => u._id === editingUserId);
       const newPoint = (user.point || 0) + pointToAdd;
 
-      // تحديث النقاط في المستخدم (PATCH)
       const res = await axios.patch(
         `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
         { point: newPoint },
@@ -92,13 +98,14 @@ export default function User() {
       );
 
       if (res.status === 200) {
-        // إضافة سجل في جدول PointHistory عبر POST
         await axios.post(
           "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
           {
             userId: editingUserId,
-            points: pointToAdd, // **هنا يجب أن يكون points وليس pointsChanged**
-            description: `تمت إضافة ${pointToAdd} نقطة بواسطة الإدارة`,
+            points: pointToAdd,
+            description:
+              t("points_added_by_admin", { count: pointToAdd }) ||
+              `تمت إضافة ${pointToAdd} نقطة بواسطة الإدارة`,
           },
           {
             headers: {
@@ -108,23 +115,21 @@ export default function User() {
           }
         );
 
-        // تحديث الواجهة بدون إعادة جلب البيانات
         setUsers(
           users.map((u) =>
             u._id === editingUserId ? { ...u, point: newPoint } : u
           )
         );
-
-        alert("تم تحديث النقاط بنجاح");
+        alert(t("points_updated_success") || "تم تحديث النقاط بنجاح");
         setEditingUserId(null);
       } else {
-        alert("فشل تحديث النقاط، حاول مرة أخرى");
+        alert(t("points_update_failed") || "فشل تحديث النقاط، حاول مرة أخرى");
       }
     } catch (error) {
-      console.error("خطأ أثناء تحديث النقاط:", error);
+      console.error("Error updating points:", error);
       alert(
         error.response?.data?.message ||
-          "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم"
+          (t("points_update_error") || "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم")
       );
     }
   };
@@ -135,11 +140,15 @@ export default function User() {
 
   return (
     <>
+      {/* الهيدر */}
+      <Header />
+
+      {/* زر الهامبرغر لفتح القائمة الجانبية */}
       {!sidebarOpen && (
         <button
-          className="fixed top-4 left-4 z-50 bg-white p-2 rounded-md shadow"
+          className="fixed top-20 left-4 z-50 bg-white p-2 rounded-md shadow"
           onClick={toggleSidebar}
-          aria-label="فتح القائمة الجانبية"
+          aria-label={t("open_sidebar") || "فتح القائمة الجانبية"}
         >
           <svg
             width="30"
@@ -153,83 +162,110 @@ export default function User() {
         </button>
       )}
 
+      {/* القائمة الجانبية */}
       <Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
 
-      <div className="min-h-screen bg-gradient-to-r from-purple-800 via-pink-600 to-yellow-100 p-6">
-        <h2 className="text-3xl text-white font-bold mb-6 text-center">
-          إدارة المستخدمين
+      {/* المحتوى مع تغيير الثيم */}
+      <div
+        className={`min-h-screen p-6 pt-24 ${
+          darkMode
+            ? "bg-gray-900 text-white"
+            : "bg-gradient-to-r from-purple-800 via-pink-600 to-yellow-100 text-black"
+        }`}
+      >
+        <h2 className="text-3xl font-bold mb-6 text-center">
+          {t("user_management") || "إدارة المستخدمين"}
         </h2>
 
         <input
           type="text"
-          placeholder="ابحث بالاسم..."
+          placeholder={t("search_by_name") || "ابحث بالاسم..."}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-md mx-auto mb-6 px-4 py-2 rounded shadow border focus:outline-none focus:ring-2 focus:ring-purple-400"
-          aria-label="بحث المستخدمين"
+          className={`w-full max-w-md mx-auto mb-6 px-4 py-2 rounded shadow border focus:outline-none focus:ring-2 ${
+            darkMode
+              ? "focus:ring-gray-400 bg-gray-800 text-white border-gray-700"
+              : "focus:ring-purple-400 bg-white text-black border-gray-300"
+          }`}
+          aria-label={t("search_users") || "بحث المستخدمين"}
         />
 
-        <div className="overflow-x-auto bg-white bg-opacity-90 rounded-lg shadow">
+        <div
+          className={`overflow-x-auto rounded-lg shadow ${
+            darkMode ? "bg-gray-800 bg-opacity-90" : "bg-white bg-opacity-90"
+          }`}
+        >
           {/* جدول للأجهزة المتوسطة وما فوق */}
           <div className="hidden md:block">
             <table className="min-w-full table-auto text-sm md:text-base">
-              <thead className="bg-purple-800 text-white">
+              <thead
+                className={`${
+                  darkMode ? "bg-gray-700 text-white" : "bg-purple-800 text-white"
+                }`}
+              >
                 <tr>
                   <th className="p-3">#</th>
-                  <th className="p-3">الاسم</th>
-                  <th className="p-3">البريد</th>
-                  <th className="p-3">الهاتف</th>
-                  <th className="p-3">النقاط</th>
-                  <th className="p-3">الدور</th>
-                  <th className="p-3">الحالة</th>
-                  <th className="p-3">الإجراءات</th>
+                  <th className="p-3">{t("name") || "الاسم"}</th>
+                  <th className="p-3">{t("email") || "البريد"}</th>
+                  <th className="p-3">{t("phone") || "الهاتف"}</th>
+                  <th className="p-3">{t("points") || "النقاط"}</th>
+                  <th className="p-3">{t("role") || "الدور"}</th>
+                  <th className="p-3">{t("status") || "الحالة"}</th>
+                  <th className="p-3">{t("actions") || "الإجراءات"}</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.length > 0 ? (
                   filteredUsers.map((user, index) => (
-                    <tr key={user._id} className="text-center border-b">
+                    <tr
+                      key={user._id}
+                      className={`text-center border-b ${
+                        darkMode ? "border-gray-700" : ""
+                      }`}
+                    >
                       <td className="p-3">{index + 1}</td>
                       <td className="p-3">{user.name}</td>
                       <td className="p-3">{user.email}</td>
                       <td className="p-3">{user.phone || "-"}</td>
                       <td className="p-3">{user.point || 0}</td>
-                      <td className="p-3">{user.role || "غير محدد"}</td>
+                      <td className="p-3">
+                        {user.role || (t("undefined") || "غير محدد")}
+                      </td>
                       <td className="p-3">
                         <span
                           className={`px-3 py-1 rounded-full text-xs ${
-                            user.status === "مفعل"
+                            user.status === (t("active") || "مفعل")
                               ? "bg-green-500 text-white"
                               : "bg-red-500 text-white"
                           }`}
                         >
-                          {user.status || "غير معروف"}
+                          {user.status || (t("unknown") || "غير معروف")}
                         </span>
                       </td>
                       <td className="p-3 space-y-1">
                         <button
                           className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mr-1"
-                          onClick={() => alert("عرض المستخدم " + user._id)}
+                          onClick={() => alert(t("view_user") + " " + user._id)}
                         >
-                          عرض
+                          {t("view") || "عرض"}
                         </button>
                         <button
                           className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded mr-1"
-                          onClick={() => alert("تعديل المستخدم " + user._id)}
+                          onClick={() => alert(t("edit_user") + " " + user._id)}
                         >
-                          تعديل
+                          {t("edit") || "تعديل"}
                         </button>
                         <button
                           className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded mr-1"
                           onClick={() => handleDelete(user._id)}
                         >
-                          حذف
+                          {t("delete") || "حذف"}
                         </button>
                         <button
                           className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
                           onClick={() => handleAddPointClick(user._id)}
                         >
-                          نقاط +
+                          {t("add_points") || "نقاط +"}
                         </button>
                       </td>
                     </tr>
@@ -240,7 +276,7 @@ export default function User() {
                       colSpan="8"
                       className="p-6 text-center text-gray-500 font-semibold"
                     >
-                      لا توجد نتائج مطابقة
+                      {t("no_results") || "لا توجد نتائج مطابقة"}
                     </td>
                   </tr>
                 )}
@@ -248,85 +284,93 @@ export default function User() {
             </table>
           </div>
 
-          {/* شكل بطاقات للأجهزة الصغيرة */}
+          {/* عرض البطاقات على الشاشات الصغيرة */}
           <div className="md:hidden space-y-4" dir="rtl">
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user, index) => (
                 <div
                   key={user._id}
-                  className="bg-white rounded-lg shadow p-4 space-y-2 text-sm text-right"
+                  className={`rounded-lg shadow p-4 space-y-2 text-sm text-right ${
+                    darkMode ? "bg-gray-800 text-white" : "bg-white"
+                  }`}
                 >
                   <p>
-                    <strong>الرقم:</strong> {index + 1}
+                    <strong>{t("number") || "الرقم"}:</strong> {index + 1}
                   </p>
                   <p>
-                    <strong>الاسم:</strong> {user.name}
+                    <strong>{t("name") || "الاسم"}:</strong> {user.name}
                   </p>
                   <p>
-                    <strong>البريد:</strong> {user.email}
+                    <strong>{t("email") || "البريد"}:</strong> {user.email}
                   </p>
                   <p>
-                    <strong>الهاتف:</strong> {user.phone || "-"}
+                    <strong>{t("phone") || "الهاتف"}:</strong> {user.phone || "-"}
                   </p>
                   <p>
-                    <strong>النقاط:</strong> {user.point || 0}
+                    <strong>{t("points") || "النقاط"}:</strong> {user.point || 0}
                   </p>
                   <p>
-                    <strong>الدور:</strong> {user.role || "غير محدد"}
+                    <strong>{t("role") || "الدور"}:</strong>{" "}
+                    {user.role || (t("undefined") || "غير محدد")}
                   </p>
                   <p>
-                    <strong>الحالة:</strong>{" "}
+                    <strong>{t("status") || "الحالة"}:</strong>{" "}
                     <span
                       className={`px-2 py-1 rounded text-white text-xs ${
-                        user.status === "مفعل"
+                        user.status === (t("active") || "مفعل")
                           ? "bg-green-500"
                           : "bg-red-500"
                       }`}
                     >
-                      {user.status || "غير معروف"}
+                      {user.status || (t("unknown") || "غير معروف")}
                     </span>
                   </p>
                   <div className="flex flex-wrap gap-2 justify-start pt-2">
                     <button
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                      onClick={() => alert("عرض المستخدم " + user._id)}
+                      onClick={() => alert(t("view_user") + " " + user._id)}
                     >
-                      عرض
+                      {t("view") || "عرض"}
                     </button>
                     <button
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
-                      onClick={() => alert("تعديل المستخدم " + user._id)}
+                      onClick={() => alert(t("edit_user") + " " + user._id)}
                     >
-                      تعديل
+                      {t("edit") || "تعديل"}
                     </button>
                     <button
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                       onClick={() => handleDelete(user._id)}
                     >
-                      حذف
+                      {t("delete") || "حذف"}
                     </button>
                     <button
                       className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
                       onClick={() => handleAddPointClick(user._id)}
                     >
-                      نقاط +
+                      {t("add_points") || "نقاط +"}
                     </button>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-center text-white font-semibold">
-                لا توجد نتائج
+              <div className="text-center font-semibold">
+                {t("no_results") || "لا توجد نتائج"}
               </div>
             )}
           </div>
         </div>
 
+        {/* نافذة زيادة النقاط */}
         {editingUserId && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-80">
+            <div
+              className={`p-6 rounded-lg shadow-xl w-80 ${
+                darkMode ? "bg-gray-800 text-white" : "bg-white"
+              }`}
+            >
               <h3 className="text-lg font-semibold mb-4">
-                زيادة النقاط للمستخدم
+                {t("add_points_to_user") || "زيادة النقاط للمستخدم"}
               </h3>
               <form onSubmit={handlePointSubmit} className="space-y-3">
                 <input
@@ -335,23 +379,27 @@ export default function User() {
                   value={pointToAdd}
                   onChange={handlePointChange}
                   required
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="أدخل عدد النقاط"
-                  aria-label="عدد النقاط المراد إضافتها"
+                  className={`w-full border rounded px-3 py-2 ${
+                    darkMode
+                      ? "bg-gray-700 text-white border-gray-600"
+                      : "bg-gray-200 text-black border-gray-300"
+                  }`}
+                  placeholder={t("enter_points") || "أدخل عدد النقاط"}
+                  aria-label={t("points_to_add") || "عدد النقاط المراد إضافتها"}
                 />
                 <div className="flex justify-between">
                   <button
                     type="submit"
                     className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                   >
-                    تأكيد
+                    {t("confirm") || "تأكيد"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditingUserId(null)}
                     className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
                   >
-                    إلغاء
+                    {t("cancel") || "إلغاء"}
                   </button>
                 </div>
               </form>

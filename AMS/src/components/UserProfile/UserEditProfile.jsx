@@ -74,7 +74,7 @@ export default function UserProfile() {
           <h2 className="text-2xl font-bold mb-6 text-center text-purple-800">
             {t("edit_user_data")}
           </h2>
-          <PointsBlock points={userData.point ?? 0} />
+          {/* <PointsBlock points={userData.point ?? 0} />  تم إزالة عرض النقاط */}
           <EditUserForm userData={userData} setUserData={setUserData} />
         </div>
       </div>
@@ -82,19 +82,12 @@ export default function UserProfile() {
   );
 }
 
-function PointsBlock({ points }) {
-  return (
-    <div className="mb-6 p-4 bg-purple-100 rounded-lg shadow-md text-center font-semibold text-purple-800 text-xl select-none">
-      <span className="inline-block mr-2 text-2xl">⭐</span>
-      نقاطك: <span className="font-bold">{points}</span>
-    </div>
-  );
-}
+// تمت إزالة مكون PointsBlock لأنه لم يعد مستخدماً
 
 function EditUserForm({ userData, setUserData }) {
   const [name, setName] = useState(userData.name || "");
   const [email, setEmail] = useState(userData.email || "");
-  const [phone, setPhone] = useState(userData.phone || "");  // إضافة رقم الهاتف
+  const [phone, setPhone] = useState(userData.phone || "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
@@ -105,7 +98,7 @@ function EditUserForm({ userData, setUserData }) {
     const token = localStorage.getItem("userToken");
 
     try {
-      const body = { name, email, phone }; // أضف phone هنا
+      const body = { name, email, phone };
       if (password) body.password = password;
 
       const res = await fetch("https://my-backend-dgp2.onrender.com/api/users/profile", {
@@ -157,7 +150,6 @@ function EditUserForm({ userData, setUserData }) {
         />
       </div>
 
-      {/* حقل رقم الهاتف */}
       <div className="flex flex-col">
         <label className="mb-2 font-semibold text-purple-800">{t("phone")}</label>
         <input

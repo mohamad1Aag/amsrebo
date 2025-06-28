@@ -192,7 +192,11 @@ function SectionDetails() {
   // فتح مودال إضافة للسلة
   const openAddToCartModal = (product) => {
     setSelectedProduct(product);
-    setQuantity(1);
+    if (saleType === "جملة") {
+      setQuantity(12); // الكمية الافتراضية لجملة
+    } else {
+      setQuantity(1);
+    }
     setShowAddToCartModal(true);
   };
 
@@ -310,59 +314,77 @@ function SectionDetails() {
         </section>
 
         {/* اختيار نوع البيع */}
-        <div className="flex justify-center gap-8 mt-10 mb-8 text-lg font-semibold text-purple-900">
-          <label className="cursor-pointer select-none flex items-center gap-2">
-            <input
-              type="radio"
-              name="saleType"
-              value="مفرق"
-              checked={saleType === 'مفرق'}
-              onChange={() => setSaleType('مفرق')}
-              className="cursor-pointer"
-            />
-            مفرق
-          </label>
-          <label className="cursor-pointer select-none flex items-center gap-2">
-            <input
-              type="radio"
-              name="saleType"
-              value="جملة"
-              checked={saleType === 'جملة'}
-              onChange={() => setSaleType('جملة')}
-              className="cursor-pointer"
-            />
-            جملة
-          </label>
-        </div>
+        <div className="flex justify-center gap-4 mt-10 mb-8 text-lg">
+  {['مفرق', 'جملة'].map((type) => (
+    <button
+      key={type}
+      onClick={() => setSaleType(type)}
+      className={`px-6 py-2 rounded-full border-2 transition font-bold shadow-md ${
+        saleType === type
+          ? 'bg-yellow-400 text-purple-900 border-yellow-500'
+          : darkMode
+          ? 'bg-gray-800 text-white border-gray-600 hover:bg-gray-700'
+          : 'bg-white text-purple-900 border-purple-400 hover:bg-purple-100'
+      }`}
+    >
+      {type}
+    </button>
+  ))}
+</div>
+
 
         {/* الفلاتر */}
-        <div className="flex flex-col md:flex-row items-center gap-4 justify-between mb-8">
-          <input
-            type="text"
-            placeholder={t('search_products')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 rounded border border-gray-600 bg-black text-white w-full md:w-1/3"
-          />
-          <select
-            value={priceOrder}
-            onChange={(e) => setPriceOrder(e.target.value)}
-            className="px-4 py-2 rounded border border-gray-600 bg-black text-white"
-          >
-            <option value="">{t('sort_by_price')}</option>
-            <option value="asc">{t('low_to_high')}</option>
-            <option value="desc">{t('high_to_low')}</option>
-          </select>
-          <select
-            value={ratingOrder}
-            onChange={(e) => setRatingOrder(e.target.value)}
-            className="px-4 py-2 rounded border border-gray-600 bg-black text-white"
-          >
-            <option value="">{t('sort_by_rating')}</option>
-            <option value="high">{t('highest_rating')}</option>
-            <option value="low">{t('lowest_rating')}</option>
-          </select>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+            {/* مربع البحث */}
+            <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg ${
+              darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+            }`}>
+              <span className="text-xl">🔍</span>
+              <input
+                type="text"
+                placeholder={t('search_products')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`w-full bg-transparent outline-none placeholder-gray-400 font-medium ${
+                  darkMode ? 'text-white' : 'text-black'
+                }`}
+              />
+            </div>
+
+            {/* ترتيب حسب السعر */}
+            <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg ${
+              darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+            }`}>
+              <span className="text-xl">💰</span>
+              <select
+                value={priceOrder}
+                onChange={(e) => setPriceOrder(e.target.value)}
+                className="w-full bg-transparent outline-none font-medium"
+              >
+                <option value="">{t('sort_by_price')}</option>
+                <option value="asc">{t('low_to_high')}</option>
+                <option value="desc">{t('high_to_low')}</option>
+              </select>
+            </div>
+
+            {/* ترتيب حسب التقييم */}
+            <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg ${
+              darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+            }`}>
+              <span className="text-xl">⭐</span>
+              <select
+                value={ratingOrder}
+                onChange={(e) => setRatingOrder(e.target.value)}
+                className="w-full bg-transparent outline-none font-medium"
+              >
+                <option value="">{t('sort_by_rating')}</option>
+                <option value="high">{t('highest_rating')}</option>
+                <option value="low">{t('lowest_rating')}</option>
+              </select>
+            </div>
+          </div>
+
+
 
         <h3 className={`text-3xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-purple-900'}`}>
           {t('products')}
@@ -468,38 +490,55 @@ function SectionDetails() {
 
         {/* مودال إضافة للسلة */}
         {showAddToCartModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className={`bg-white rounded-lg p-6 w-11/12 max-w-md ${darkMode ? 'bg-gray-800 text-white' : ''}`}>
-              <h3 className="text-2xl font-bold mb-4">{t('add_to_cart')}</h3>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className={`rounded-lg p-6 w-11/12 max-w-md shadow-xl transition-all duration-300 ${
+      darkMode ? 'bg-gray-900 text-white border border-gray-700' : 'bg-white text-gray-900'
+    }`}>
+      <h3 className="text-2xl font-bold mb-4">{t('add_to_cart')}</h3>
 
-              <p className="mb-4">{getLocalizedText(selectedProduct?.name)}</p>
+      <p className="mb-4 font-semibold">{getLocalizedText(selectedProduct?.name)}</p>
 
-              <label className="block mb-2 font-semibold">{t('quantity')}</label>
-              <input
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value, 10))}
-                className="w-full p-2 border rounded mb-4"
-              />
+      <label className="block mb-2 font-semibold">{t('quantity')}</label>
+      <input
+        type="number"
+        min={saleType === "جملة" ? 12 : 1}
+        value={quantity}
+        onChange={(e) => {
+          const val = parseInt(e.target.value, 10);
+          if (saleType === "جملة" && val < 12) {
+            setQuantity(12);
+          } else {
+            setQuantity(val);
+          }
+        }}
+        className={`w-full p-2 border rounded mb-4 transition ${
+          darkMode
+            ? 'bg-gray-800 text-white border-gray-600 placeholder-gray-400'
+            : 'bg-white text-black border-gray-300'
+        }`}
+        placeholder={t('enter_quantity')}
+      />
 
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setShowAddToCartModal(false)}
-                  className="px-4 py-2 bg-gray-400 rounded hover:bg-gray-500"
-                >
-                  {t('cancel')}
-                </button>
-                <button
-                  onClick={confirmAddToCart}
-                  className="px-4 py-2 bg-yellow-500 text-gray-900 rounded hover:bg-yellow-600"
-                >
-                  {t('confirm')}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={() => setShowAddToCartModal(false)}
+          className={`px-4 py-2 rounded hover:opacity-90 transition ${
+            darkMode ? 'bg-gray-600 text-white' : 'bg-gray-300 text-black'
+          }`}
+        >
+          {t('cancel')}
+        </button>
+        <button
+          onClick={confirmAddToCart}
+          className="px-4 py-2 bg-yellow-500 text-purple-900 rounded hover:bg-yellow-600 transition"
+        >
+          {t('confirm')}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
         {/* مودال السلة (تنبيه) */}
         {showCartModal && (

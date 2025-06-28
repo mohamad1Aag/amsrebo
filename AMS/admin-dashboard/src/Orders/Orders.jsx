@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Sidebar from "../layouts/Sidebar";
+import Header from "../../../src/components/Header"; // استيراد الهيدر - عدل المسار حسب مشروعك
 import { ThemeContext } from "../../../src/ThemeContext";
 import { useTranslation } from "react-i18next";
 import jsPDF from "jspdf";
@@ -55,13 +56,13 @@ export default function Orders() {
         const response = await axios.get(url);
         setOrders(response.data);
       } catch (error) {
-        setError("فشل في جلب الطلبات. حاول مرة أخرى لاحقاً.");
+        setError(t("failed_fetch_orders") || "فشل في جلب الطلبات. حاول مرة أخرى لاحقاً.");
       } finally {
         setLoading(false);
       }
     };
     fetchOrders();
-  }, [userId]);
+  }, [userId, t]);
 
   useEffect(() => {
     const fetchCaptains = async () => {
@@ -71,53 +72,50 @@ export default function Orders() {
         );
         setCaptains(response.data);
       } catch (error) {
-        console.error("فشل جلب الكباتن", error.message);
+        console.error(t("failed_fetch_captains") || "فشل جلب الكباتن", error.message);
       }
     };
     fetchCaptains();
-  }, []);
+  }, [t]);
 
-  // تحديث حالة الطلب مع منع التغيير إذا مكتمل
   const updateStatus = async (orderId, newStatus) => {
     const order = orders.find((o) => o._id === orderId);
     if (!order) return;
 
-    if (order.status === "مكتمل") {
-      alert("الطلب مكتمل ولا يمكن تغيير حالته.");
+    if (order.status === t("completed") || order.status === "مكتمل") {
+      alert(t("order_completed_cant_change") || "الطلب مكتمل ولا يمكن تغيير حالته.");
       return;
     }
 
     try {
-      // حفظ اسم الكابتن قبل تعيين "مكتمل"
-      if (newStatus === "مكتمل" && order.captainName) {
-        await axios.patch(
-          `https://my-backend-dgp2.onrender.com/api/orders/${orderId}/assign-captain-name`,
-          { captainName: order.captainName }
-        );
+      if (newStatus === t("completed") || newStatus === "مكتمل") {
+        if (order.captainName) {
+          await axios.patch(
+            `https://my-backend-dgp2.onrender.com/api/orders/${orderId}/assign-captain-name`,
+            { captainName: order.captainName }
+          );
+        }
       }
 
-      // تحديث حالة الطلب
       await axios.patch(
         `https://my-backend-dgp2.onrender.com/api/orders/${orderId}/status`,
         { status: newStatus }
       );
 
-      // تحديث الحالة محليًا
       setOrders((prev) =>
         prev.map((o) =>
           o._id === orderId ? { ...o, status: newStatus } : o
         )
       );
     } catch (error) {
-      alert("فشل تحديث حالة الطلب.");
+      alert(t("failed_update_order_status") || "فشل تحديث حالة الطلب.");
     }
   };
 
-  // تعيين كابتن مع منع التغيير إذا حالة الطلب مكتمل
   const assignCaptain = async (orderId, captainName) => {
     const order = orders.find((o) => o._id === orderId);
-    if (order.status === "مكتمل") {
-      alert("لا يمكن تغيير اسم الكابتن للطلبات المكتملة.");
+    if (order.status === t("completed") || order.status === "مكتمل") {
+      alert(t("cant_change_captain_completed_order") || "لا يمكن تغيير اسم الكابتن للطلبات المكتملة.");
       return;
     }
     try {
@@ -129,52 +127,46 @@ export default function Orders() {
         prev.map((o) => (o._id === orderId ? { ...o, captainName } : o))
       );
     } catch (error) {
-      alert("فشل تعيين اسم الكابتن.");
+      alert(t("failed_assign_captain") || "فشل تعيين اسم الكابتن.");
     }
   };
 
   const deleteOrder = async (orderId) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا الطلب؟")) return;
+    if (!window.confirm(t("confirm_delete_order") || "هل أنت متأكد من حذف هذا الطلب؟")) return;
     try {
       await axios.delete(`https://my-backend-dgp2.onrender.com/api/orders/${orderId}`);
       setOrders((prev) => prev.filter((o) => o._id !== orderId));
     } catch (err) {
-      alert("حدث خطأ أثناء الحذف.");
+      alert(t("error_deleting_order") || "حدث خطأ أثناء الحذف.");
     }
   };
 
   const generateInvoice = (order) => {
     const doc = new jsPDF();
-    doc.text("فاتورة الطلب", 14, 10);
+    doc.text(t("invoice") || "فاتورة الطلب", 14, 10);
     doc.autoTable({
-      head: [["المنتج", "الكمية", "السعر"]],
+      head: [[t("product") || "المنتج", t("quantity") || "الكمية", t("price") || "السعر"]],
       body: order.products.map((p) => [p.name, p.quantity || 1, `${p.price.toFixed(2)} ر.س`]),
     });
-    doc.text(`الإجمالي: ${order.total.toFixed(2)} ر.س`, 14, doc.lastAutoTable.finalY + 10);
-    doc.text(`العميل: ${order.userId?.name || "مجهول"}`, 14, doc.lastAutoTable.finalY + 20);
-    doc.text(
-      `التاريخ: ${new Date(order.createdAt).toLocaleDateString("ar-EG")}`,
-      14,
-      doc.lastAutoTable.finalY + 30
-    );
+    doc.text(`${t("total") || "الإجمالي"}: ${order.total.toFixed(2)} ر.س`, 14, doc.lastAutoTable.finalY + 10);
+    doc.text(`${t("client") || "العميل"}: ${order.userId?.name || t("unknown") || "مجهول"}`, 14, doc.lastAutoTable.finalY + 20);
+    doc.text(t("date") || `التاريخ: ${new Date(order.createdAt).toLocaleDateString("ar-EG")}`, 14, doc.lastAutoTable.finalY + 30);
     doc.save(`فاتورة-${order._id}.pdf`);
   };
 
-  // فتح مودال الخريطة
   const openMapModal = (location, orderStatus) => {
-    if (orderStatus === "مكتمل") {
-      alert("هذا الطلب مكتمل ولا يمكن تعديل موقعه.");
+    if (orderStatus === t("completed") || orderStatus === "مكتمل") {
+      alert(t("order_completed_cant_edit_location") || "هذا الطلب مكتمل ولا يمكن تعديل موقعه.");
       return;
     }
     if (!location) {
-      alert("لا يوجد موقع للطلب.");
+      alert(t("no_order_location") || "لا يوجد موقع للطلب.");
       return;
     }
     setSelectedLocation(location);
     setModalOpen(true);
   };
 
-  // تصفية الطلبات للبحث والفلترة مع تضمين رقم الهاتف في البحث
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order._id.includes(searchTerm) ||
@@ -184,28 +176,43 @@ export default function Orders() {
     return matchesSearch && matchesStatus;
   });
 
-  return (
+  return (<>
+    {/* الهيدر */}
+    <Header toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+
+    {/* السايدبار */}
+    <Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
     <div
       className={`min-h-screen flex flex-col lg:flex-row ${
-        darkMode ? "bg-gray-900" : "bg-gray-100"
+        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
       }`}
     >
-      <Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
-      <div className="flex-1 p-4 sm:p-6">
-        {/* العنوان وزر القائمة */}
+
+      {/* المحتوى */}
+      <main className="flex-1 p-4 sm:p-6 overflow-auto">
+        {/* العنوان وزر القائمة للهاتف */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-          <h1
-            className={`text-xl sm:text-2xl font-bold ${
-              darkMode ? "text-black" : "text-gray-900"
-            }`}
-          >
+          <h1 className={`text-xl sm:text-2xl font-bold`}>
             {t("orders_management") || "إدارة الطلبات"}
           </h1>
           <button
             onClick={toggleSidebar}
-            className="lg:hidden px-3 py-2 bg-blue-600 text-black rounded"
+            className={`lg:hidden px-3 py-2 rounded ${
+              darkMode ? "bg-gray-700 text-white" : "bg-blue-600 text-black"
+            }`}
+            aria-label={t("toggle_menu") || "تبديل القائمة"}
           >
-            {t("menu") || "القائمة"}
+            {/* أيقونة هامبرغر */}
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
         </div>
 
@@ -216,118 +223,114 @@ export default function Orders() {
             placeholder={t("search_orders") || "ابحث برقم الطلب أو اسم العميل..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`flex-1 p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 ${
-              darkMode ? "text-black" : "text-gray-900"
+            className={`flex-1 p-2 rounded border border-gray-300 dark:border-gray-700 ${
+              darkMode ? "bg-gray-700 text-white" : "bg-white text-black"
             }`}
+            aria-label={t("search_orders") || "بحث الطلبات"}
           />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className={`p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 ${
-              darkMode ? "text-black" : "text-gray-900"
+            className={`p-2 rounded border border-gray-300 dark:border-gray-700 ${
+              darkMode ? "bg-gray-700 text-white" : "bg-white text-black"
             }`}
+            aria-label={t("filter_by_status") || "فلترة حسب الحالة"}
           >
-            <option value="">كل الحالات</option>
-            <option value="جديد">جديد</option>
-            <option value="قيد التنفيذ">قيد التنفيذ</option>
-            <option value="بانتظار التوصيل">بانتظار التوصيل</option>
-            <option value="قيد التوصيل">قيد التوصيل</option>
-            <option value="مكتمل">مكتمل</option>
-            <option value="مرفوض">مرفوض</option>
+            <option value="">{t("all_statuses") || "كل الحالات"}</option>
+            <option value="جديد">{t("new") || "جديد"}</option>
+            <option value="قيد التنفيذ">{t("in_progress") || "قيد التنفيذ"}</option>
+            <option value="بانتظار التوصيل">{t("waiting_delivery") || "بانتظار التوصيل"}</option>
+            <option value="قيد التوصيل">{t("delivering") || "قيد التوصيل"}</option>
+            <option value="مكتمل">{t("completed") || "مكتمل"}</option>
+            <option value="مرفوض">{t("rejected") || "مرفوض"}</option>
           </select>
         </div>
 
-        {/* عرض الحالة */}
+        {/* حالات التحميل والخطأ */}
         {loading && (
-          <p className={`mb-4 text-center ${darkMode ? "text-black" : "text-gray-900"}`}>
+          <p className="mb-4 text-center">
             {t("loading") || "جارٍ التحميل..."}
           </p>
         )}
         {error && <p className="mb-4 text-center text-red-500">{error}</p>}
 
         {/* جدول الطلبات */}
-        <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded shadow text-sm">
+        <div
+          className={`overflow-x-auto rounded shadow ${
+            darkMode ? "bg-gray-800" : "bg-white"
+          } text-sm`}
+        >
           <table className="min-w-full text-right">
             <thead
-              className={`bg-gray-200 dark:bg-gray-700 ${
-                darkMode ? "text-black" : "text-gray-700"
+              className={`${
+                darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-700"
               }`}
             >
               <tr>
                 <th className="px-2 py-1">#</th>
-                <th className="px-2 py-1">رقم الطلب</th>
-                <th className="px-2 py-1">العميل</th>
-                <th className="px-2 py-1">رقم الهاتف</th> {/* هنا */}
-                <th className="px-2 py-1">عدد المنتجات</th>
-                <th className="px-2 py-1">الإجمالي</th>
-                <th className="px-2 py-1">الحالة</th>
-                <th className="px-2 py-1">كابتن التوصيل</th>
-                <th className="px-2 py-1">ملاحظات</th>
-                <th className="px-2 py-1">الموقع</th>
-                <th className="px-2 py-1">التاريخ</th>
-                <th className="px-2 py-1">الإجراءات</th>
+                <th className="px-2 py-1">{t("order_number") || "رقم الطلب"}</th>
+                <th className="px-2 py-1">{t("client") || "العميل"}</th>
+                <th className="px-2 py-1">{t("phone") || "رقم الهاتف"}</th>
+                <th className="px-2 py-1">{t("products_count") || "عدد المنتجات"}</th>
+                <th className="px-2 py-1">{t("total") || "الإجمالي"}</th>
+                <th className="px-2 py-1">{t("status") || "الحالة"}</th>
+                <th className="px-2 py-1">{t("captain") || "كابتن التوصيل"}</th>
+                <th className="px-2 py-1">{t("notes") || "ملاحظات"}</th>
+                <th className="px-2 py-1">{t("location") || "الموقع"}</th>
+                <th className="px-2 py-1">{t("date") || "التاريخ"}</th>
+                <th className="px-2 py-1">{t("actions") || "الإجراءات"}</th>
               </tr>
             </thead>
             <tbody>
               {filteredOrders.length > 0 ? (
                 filteredOrders.map((order, idx) => (
                   <React.Fragment key={order._id}>
-                    <tr className="border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-sm">
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
-                        {idx + 1}
-                      </td>
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
-                        {order._id}
-                      </td>
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
-                        {order.userId?.name || "مجهول"}
-                      </td>
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
-                        {order.userPhone || "-"}
-                      </td>
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
-                        {order.products?.length || 0}
-                      </td>
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
-                        {order.total?.toFixed(2)} ر.س
-                      </td>
+                    <tr
+                      className={`border-b border-gray-300 dark:border-gray-600 ${
+                        darkMode ? "bg-gray-900" : "bg-white"
+                      } shadow-sm`}
+                    >
+                      <td className="px-2 py-1">{idx + 1}</td>
+                      <td className="px-2 py-1">{order._id}</td>
+                      <td className="px-2 py-1">{order.userId?.name || t("unknown") || "مجهول"}</td>
+                      <td className="px-2 py-1">{order.userPhone || "-"}</td>
+                      <td className="px-2 py-1">{order.products?.length || 0}</td>
+                      <td className="px-2 py-1">{order.total?.toFixed(2)} ر.س</td>
                       <td className="px-2 py-1">
                         <select
                           value={order.status}
                           onChange={(e) => updateStatus(order._id, e.target.value)}
                           className={`px-2 py-1 rounded text-black cursor-pointer text-xs
                             ${
-                              order.status === "مكتمل"
+                              order.status === (t("completed") || "مكتمل")
                                 ? "bg-green-600"
-                                : order.status === "مرفوض"
+                                : order.status === (t("rejected") || "مرفوض")
                                 ? "bg-red-600"
-                                : order.status === "قيد التنفيذ"
+                                : order.status === (t("in_progress") || "قيد التنفيذ")
                                 ? "bg-yellow-500"
-                                : order.status === "بانتظار التوصيل"
+                                : order.status === (t("waiting_delivery") || "بانتظار التوصيل")
                                 ? "bg-purple-600"
-                                : order.status === "قيد التوصيل"
+                                : order.status === (t("delivering") || "قيد التوصيل")
                                 ? "bg-blue-600"
                                 : "bg-gray-500"
                             }`}
                         >
-                          <option value="جديد">جديد</option>
-                          <option value="قيد التنفيذ">قيد التنفيذ</option>
-                          <option value="بانتظار التوصيل">بانتظار التوصيل</option>
-                          <option value="قيد التوصيل">قيد التوصيل</option>
-                          <option value="مكتمل">مكتمل</option>
-                          <option value="مرفوض">مرفوض</option>
+                          <option value="جديد">{t("new") || "جديد"}</option>
+                          <option value="قيد التنفيذ">{t("in_progress") || "قيد التنفيذ"}</option>
+                          <option value="بانتظار التوصيل">{t("waiting_delivery") || "بانتظار التوصيل"}</option>
+                          <option value="قيد التوصيل">{t("delivering") || "قيد التوصيل"}</option>
+                          <option value="مكتمل">{t("completed") || "مكتمل"}</option>
+                          <option value="مرفوض">{t("rejected") || "مرفوض"}</option>
                         </select>
                       </td>
-
-                      {/* اختيار كابتن التوصيل مع منع التعديل إذا مكتمل */}
                       <td className="px-2 py-1">
                         <select
                           value={order.captainName || ""}
                           onChange={(e) => assignCaptain(order._id, e.target.value)}
                           className="p-1 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-black"
-                          disabled={order.status === "مكتمل"}
+                          disabled={order.status === (t("completed") || "مكتمل")}
                         >
-                          <option value="">-- اختر كابتن --</option>
+                          <option value="">-- {t("select_captain") || "اختر كابتن"} --</option>
                           {captains.map((captain) => (
                             <option key={captain._id} value={captain.name}>
                               {captain.name}
@@ -335,70 +338,75 @@ export default function Orders() {
                           ))}
                         </select>
                       </td>
-
-                      <td
-                        className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1 max-w-xs truncate`}
-                      >
-                        {order.notes || "-"}
-                      </td>
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
+                      <td className="px-2 py-1 max-w-xs truncate">{order.notes || "-"}</td>
+                      <td className="px-2 py-1">
                         {order.deliveryLocation
                           ? `${order.deliveryLocation.lat.toFixed(4)}, ${order.deliveryLocation.lng.toFixed(4)}`
                           : "-"}
                       </td>
-                      <td className={`${darkMode ? "text-black" : "text-gray-900"} px-2 py-1`}>
+                      <td className="px-2 py-1">
                         {new Date(order.createdAt).toLocaleDateString("ar-EG")}
                       </td>
                       <td className="px-2 py-1 space-y-1 flex flex-wrap gap-1">
                         <button
                           onClick={() => updateStatus(order._id, "قيد التنفيذ")}
                           className="bg-green-600 hover:bg-green-700 text-black px-2 py-1 rounded text-xs"
-                          disabled={order.status === "مكتمل"}
+                          disabled={order.status === (t("completed") || "مكتمل")}
                         >
-                          قبول الطلب
+                          {t("accept_order") || "قبول الطلب"}
                         </button>
                         <button
                           onClick={() => updateStatus(order._id, "قيد التوصيل")}
                           className="bg-purple-600 hover:bg-purple-700 text-black px-2 py-1 rounded text-xs"
-                          disabled={order.status === "مكتمل"}
+                          disabled={order.status === (t("completed") || "مكتمل")}
                         >
-                          بدء التوصيل
+                          {t("start_delivery") || "بدء التوصيل"}
                         </button>
                         <button
                           onClick={() => generateInvoice(order)}
                           className="bg-green-500 hover:bg-green-600 text-black px-2 py-1 rounded text-xs"
                         >
-                          طباعة
+                          {t("print") || "طباعة"}
                         </button>
                         <button
                           onClick={() => openMapModal(order.deliveryLocation, order.status)}
                           className="bg-blue-500 hover:bg-blue-600 text-black px-2 py-1 rounded text-xs"
                         >
-                          عرض
+                          {t("view") || "عرض"}
                         </button>
-                        <button className="bg-yellow-500 hover:bg-yellow-600 text-black px-2 py-1 rounded text-xs">
-                          تعديل
+                        <button
+                          className="bg-yellow-500 hover:bg-yellow-600 text-black px-2 py-1 rounded text-xs"
+                          disabled
+                        >
+                          {t("edit") || "تعديل"}
                         </button>
                         <button
                           onClick={() => deleteOrder(order._id)}
                           className="bg-red-500 hover:bg-red-600 text-black px-2 py-1 rounded text-xs"
                         >
-                          حذف
+                          {t("delete") || "حذف"}
                         </button>
                       </td>
                     </tr>
+
                     {/* تفاصيل المنتجات */}
-                    <tr className="bg-gray-50 dark:bg-gray-700">
-                      <td colSpan="12" className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                        <strong>المنتجات:</strong>
+                    <tr className={darkMode ? "bg-gray-700 text-white" : "bg-gray-50"}>
+                      <td colSpan="12" className="px-4 py-3 text-sm">
+                        <strong>{t("products") || "المنتجات"}:</strong>
                         <div className="overflow-x-auto mt-2">
-                          <table className="min-w-full border border-gray-300 dark:border-gray-600 text-right text-xs sm:text-sm rounded-md">
-                            <thead className="bg-gray-200 dark:bg-gray-600 rounded-t-md">
+                          <table
+                            className={`min-w-full border ${
+                              darkMode ? "border-gray-600" : "border-gray-300"
+                            } text-right text-xs sm:text-sm rounded-md`}
+                          >
+                            <thead
+                              className={darkMode ? "bg-gray-600" : "bg-gray-200 rounded-t-md"}
+                            >
                               <tr>
-                                <th className="border px-2 py-1 rounded-tl-md">الاسم</th>
-                                <th className="border px-2 py-1">النوع</th>
-                                <th className="border px-2 py-1">الكمية</th>
-                                <th className="border px-2 py-1 rounded-tr-md">السعر</th>
+                                <th className="border px-2 py-1 rounded-tl-md">{t("name") || "الاسم"}</th>
+                                <th className="border px-2 py-1">{t("type") || "النوع"}</th>
+                                <th className="border px-2 py-1">{t("quantity") || "الكمية"}</th>
+                                <th className="border px-2 py-1 rounded-tr-md">{t("price") || "السعر"}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -406,7 +414,13 @@ export default function Orders() {
                                 <tr
                                   key={i}
                                   className={`border px-2 py-1 ${
-                                    i % 2 === 0 ? "bg-white dark:bg-gray-800" : "bg-gray-100 dark:bg-gray-700"
+                                    i % 2 === 0
+                                      ? darkMode
+                                        ? "bg-gray-800"
+                                        : "bg-white"
+                                      : darkMode
+                                      ? "bg-gray-700"
+                                      : "bg-gray-100"
                                   }`}
                                 >
                                   <td className="border px-2 py-1">{product.name}</td>
@@ -425,7 +439,7 @@ export default function Orders() {
               ) : (
                 <tr>
                   <td colSpan="12" className="text-center py-4">
-                    لا توجد طلبات لعرضها
+                    {t("no_orders_to_show") || "لا توجد طلبات لعرضها"}
                   </td>
                 </tr>
               )}
@@ -436,8 +450,12 @@ export default function Orders() {
         {/* مودال الخريطة */}
         {modalOpen && selectedLocation && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 max-w-lg w-full">
-              <h2 className="text-lg font-bold mb-4">موقع التوصيل</h2>
+            <div
+              className={`rounded-lg p-4 max-w-lg w-full ${
+                darkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+              }`}
+            >
+              <h2 className="text-lg font-bold mb-4">{t("delivery_location") || "موقع التوصيل"}</h2>
               <div style={{ height: "300px", width: "100%" }}>
                 <MapContainer
                   center={[selectedLocation.lat, selectedLocation.lng]}
@@ -450,7 +468,7 @@ export default function Orders() {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
                   <Marker position={[selectedLocation.lat, selectedLocation.lng]}>
-                    <Popup>موقع التوصيل</Popup>
+                    <Popup>{t("delivery_location") || "موقع التوصيل"}</Popup>
                   </Marker>
                 </MapContainer>
               </div>
@@ -459,13 +477,13 @@ export default function Orders() {
                   onClick={() => setModalOpen(false)}
                   className="px-4 py-2 bg-red-500 text-white rounded"
                 >
-                  إغلاق
+                  {t("close") || "إغلاق"}
                 </button>
               </div>
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </main>
+    </div></>
   );
 }

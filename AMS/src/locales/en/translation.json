@@ -65,6 +65,7 @@
       "all_rights_reserved": "All rights reserved",
       
         "login": "Login",
+        "my_orders": "My Orders",
         "register": "Register",
 
 
@@ -88,10 +89,83 @@
   "total": "Total",
   "date": "Date",
   "product_count": "Number of products",
-  "show_products_details": "Show products details"
+  "show_products_details": "Show products details",
 
 
+  
+  
+  
+    "loading_data": "Loading...",
+    "not_logged_in": "Not logged in or user ID not found",
+    "failed_fetch_point_history": "Failed to fetch point history",
+    "your_points": "Your Points",
+    "point_history": "Point History",
+    "no_point_history": "No history available.",
+    "increase": "Increase +",
+    "deduct": "Deduct -",
+    "points": "points",
+  
+  
+    
+          
+    
+    
+  
       
+        "my_orders": "My Orders",
+        "loading_orders": "Loading orders...",
+        "fetch_orders_error": "Error fetching orders",
+        "user_not_known": "User not recognized",
+        "no_orders_yet": "No orders yet",
+        "order_number": "Order Number",
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "delivered": "Delivered",
+        "canceled": "Canceled",
+        "total": "Total",
+        "date": "Date",
+        "product_count": "Product Count",
+        "captain_name": "Captain Name",
+        "no_captain_assigned": "No captain assigned",
+        "show_products_details": "Show product details",
+        "rate_your_order": "Rate your order",
+        "leave_comment": "Leave a comment (optional)",
+        "please_rate_first": "Please select a rating first",
+        "thank_you_feedback": "Thank you for your feedback",
+        "feedback_already_submitted": "You have already submitted feedback",
+        "feedback_submission_error": "Error submitting feedback",
+        "submitting": "Submitting...",
+        "submit_feedback": "Submit Feedback",
+        "toggle_language": "Toggle Language",
+        "toggle_theme": "Toggle Theme",
+        "dark_mode": "Dark Mode",
+        "light_mode": "Light Mode",
+      
+        
+          "dashboard": "Dashboard",
+          "users": "Users",
+          "products": "Products",
+          "categories": "Categories",
+          "orders": "Orders",
+          "reports": "Reports",
+          "feedback": "Feedback",
+          "settings": "Settings",
+          "account": "Account",
+          "admin_dashboard": "Admin Dashboard",
+          "about_us": "About Us",
+          "contact": "Contact",
+          "captain": "Captain",
+          "captain_login": "Captain Login",
+          "captain_register": "Captain Register",
+          "user_profile": "User Profile",
+          "edit_profile": "Edit Profile",
+          "point": "Points",
+          "cart": "Cart",
+          "services": "Services",
+          "my_orders": "My Orders"
+        
+        
+  
     
     
   

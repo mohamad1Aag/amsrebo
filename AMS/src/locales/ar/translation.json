@@ -252,13 +252,101 @@
   "total": "الإجمالي",
   "date": "التاريخ",
   "product_count": "عدد المنتجات",
-  "show_products_details": "عرض تفاصيل المنتجات"
+  "show_products_details": "عرض تفاصيل المنتجات",
 
-
+  
+    "my_orders": "مشاهدة طلباتي",
+    "account": "الحساب",
+    "user_profile": "الملف الشخصي",
+    "edit_profile": "تعديل الملف",
+    "point_history": "سجل النقاط",
+    "cart": "المشتريات",
+    "services": "الخدمات",
+    "captain": "كابتن",
+    "home": "الرئيسية",
+    "admin_dashboard": "لوحة التحكم",
+    "about_us": "من نحن",
+    "contact": "تواصل معنا",
+    "captain_login": "دخول الكابتن",
+    "captain_register": "تسجيل كابتن",
+  
+  
           
           
       
       
+    
+    
+    
+      "loading_data": "...جاري التحميل",
+      "not_logged_in": "لم يتم تسجيل الدخول أو معرف المستخدم غير موجود",
+      "failed_fetch_point_history": "فشل في جلب سجل النقاط",
+      "your_points": "نقاطك الحالية",
+      "point_history": "سجل النقاط",
+      "no_point_history": "لا يوجد سجل للعمليات.",
+      "increase": "زيادة +",
+      "deduct": "خصم -",
+      "points": "نقطة",
+
+
+
+
+      "my_orders": "طلباتي",
+        "loading_orders": "...جارٍ تحميل الطلبات",
+        "fetch_orders_error": "حدث خطأ أثناء جلب الطلبات",
+        "user_not_known": "لم يتم التعرف على المستخدم",
+        "no_orders_yet": "لا توجد طلبات حتى الآن",
+        "order_number": "رقم الطلب",
+        "pending": "قيد الانتظار",
+        "confirmed": "تم التأكيد",
+        "delivered": "مكتمل",
+        "canceled": "ملغى",
+        "total": "الإجمالي",
+        "date": "التاريخ",
+        "product_count": "عدد المنتجات",
+        "captain_name": "اسم الكابتن",
+        "no_captain_assigned": "لم يتم تعيين كابتن",
+        "show_products_details": "عرض تفاصيل المنتجات",
+        "rate_your_order": "قيّم طلبك",
+        "leave_comment": "اكتب تعليقاً (اختياري)",
+        "please_rate_first": "يرجى اختيار التقييم أولاً",
+        "thank_you_feedback": "تم حفظ التقييم بنجاح",
+        "feedback_already_submitted": "لقد قمت بالتقييم مسبقًا",
+        "feedback_submission_error": "حدث خطأ أثناء إرسال التقييم",
+        "submitting": "جارٍ الإرسال...",
+        "submit_feedback": "إرسال التقييم",
+        "toggle_language": "تبديل اللغة",
+        "toggle_theme": "تبديل الوضع",
+        "dark_mode": "الوضع الداكن",
+        "light_mode": "الوضع الفاتح",
+    
+    
+        
+          "dashboard": "لوحة التحكم",
+          "users": "المستخدمون",
+          "products": "المنتجات",
+          "categories": "التصنيفات",
+          "orders": "الطلبات",
+          "reports": "التقارير",
+          "feedback": "التقييمات",
+          "settings": "الإعدادات",
+          "account": "الحساب",
+          "admin_dashboard": "لوحة إدارة",
+          "about_us": "معلومات عنا",
+          "contact": "اتصل بنا",
+          "captain": "الكابتن",
+          "captain_login": "تسجيل دخول الكابتن",
+          "captain_register": "تسجيل الكابتن",
+          "user_profile": "ملف المستخدم",
+          "edit_profile": "تعديل الملف",
+          "point": "النقاط",
+          "cart": "عربة التسوق",
+          "services": "الخدمات",
+          "my_orders": "طلباتي"
+        
+        
+    
+    
     
     
   
