@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Section = require('../models/Section');
-const upload = require('../middlewares/cloudinary'); // ✅ Cloudinary middleware
+const {upload} = require('../middlewares/cloudinary'); // ✅ Cloudinary middleware
 
 // POST: إضافة قسم جديد
 router.post('/add', upload.single('image'), async (req, res) => {
