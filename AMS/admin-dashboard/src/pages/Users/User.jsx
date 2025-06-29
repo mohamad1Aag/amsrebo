@@ -76,19 +76,43 @@ export default function User() {
     setPointToAdd(value === "" || Number(value) < 0 ? 0 : Number(value));
   };
 
-  const handlePointSubmit = async (e) => {
-    e.preventDefault();
-    if (pointToAdd <= 0) {
-      alert(t("enter_valid_points") || "يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
-      return;
-    }
-    try {
-      const user = users.find((u) => u._id === editingUserId);
-      const newPoint = (user.point || 0) + pointToAdd;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+const handlePointSubmit = async (e) => {
+  e.preventDefault();
 
-      const res = await axios.patch(
-        `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
-        { point: newPoint },
+  if (isSubmitting) return;
+  if (pointToAdd <= 0) {
+    alert(t("enter_valid_points") || "يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
+    return;
+  }
+
+  setIsSubmitting(true); // بداية الحماية من التكرار
+
+  try {
+    const user = users.find((u) => u._id === editingUserId);
+    const newPoint = (user.point || 0) + pointToAdd;
+
+    const res = await axios.patch(
+      `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
+      { point: newPoint },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (res.status === 200) {
+      await axios.post(
+        "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
+        {
+          userId: editingUserId,
+          points: pointToAdd,
+          description:
+            t("points_added_by_admin", { count: pointToAdd }) ||
+            `تمت إضافة ${pointToAdd} نقطة بواسطة الإدارة`,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -97,42 +121,26 @@ export default function User() {
         }
       );
 
-      if (res.status === 200) {
-        await axios.post(
-          "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
-          {
-            userId: editingUserId,
-            points: pointToAdd,
-            description:
-              t("points_added_by_admin", { count: pointToAdd }) ||
-              `تمت إضافة ${pointToAdd} نقطة بواسطة الإدارة`,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        setUsers(
-          users.map((u) =>
-            u._id === editingUserId ? { ...u, point: newPoint } : u
-          )
-        );
-        alert(t("points_updated_success") || "تم تحديث النقاط بنجاح");
-        setEditingUserId(null);
-      } else {
-        alert(t("points_update_failed") || "فشل تحديث النقاط، حاول مرة أخرى");
-      }
-    } catch (error) {
-      console.error("Error updating points:", error);
-      alert(
-        error.response?.data?.message ||
-          (t("points_update_error") || "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم")
+      setUsers(
+        users.map((u) =>
+          u._id === editingUserId ? { ...u, point: newPoint } : u
+        )
       );
+      alert(t("points_updated_success") || "تم تحديث النقاط بنجاح");
+      setEditingUserId(null);
+    } else {
+      alert(t("points_update_failed") || "فشل تحديث النقاط، حاول مرة أخرى");
     }
-  };
+  } catch (error) {
+    console.error("Error updating points:", error);
+    alert(
+      error.response?.data?.message ||
+        (t("points_update_error") || "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم")
+    );
+  } finally {
+    setIsSubmitting(false); // إرجاع حالة الإرسال إلى false
+  }
+};
 
   const filteredUsers = users.filter((user) =>
     user.name?.toLowerCase().includes(searchTerm.toLowerCase())
