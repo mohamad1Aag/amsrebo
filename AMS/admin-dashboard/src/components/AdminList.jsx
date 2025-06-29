@@ -60,51 +60,20 @@ const AdminList = () => {
     }
   };
 
-  const renderRoleButtons = (admin) => {
+  const renderRoleSelector = (admin) => {
     if (currentRole !== "admin" || admin._id === currentId) return null;
 
-    if (admin.role === "miniadmin") {
-      return (
-        <button
-          onClick={() => changeRole(admin._id, "middleadmin")}
-          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-        >
-          ترقية إلى middleadmin
-        </button>
-      );
-    }
-
-    if (admin.role === "middleadmin") {
-      return (
-        <div className="flex gap-2">
-          <button
-            onClick={() => changeRole(admin._id, "admin")}
-            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-          >
-            ترقية إلى admin
-          </button>
-          <button
-            onClick={() => changeRole(admin._id, "miniadmin")}
-            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-          >
-            تخفيض إلى miniadmin
-          </button>
-        </div>
-      );
-    }
-
-    if (admin.role === "admin") {
-      return (
-        <button
-          onClick={() => changeRole(admin._id, "middleadmin")}
-          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-        >
-          تخفيض إلى middleadmin
-        </button>
-      );
-    }
-
-    return null;
+    return (
+      <select
+        value={admin.role}
+        onChange={(e) => changeRole(admin._id, e.target.value)}
+        className="bg-white text-gray-900 border border-gray-300 rounded px-2 py-1 shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="miniadmin">miniadmin</option>
+        <option value="middleadmin">middleadmin</option>
+        <option value="admin">admin</option>
+      </select>
+    );
   };
 
   return (
@@ -140,10 +109,10 @@ const AdminList = () => {
                   <div>
                     <p className="font-semibold">{admin.username}</p>
                     <p className="text-sm text-gray-400">{admin.email}</p>
-                    <p className="text-sm">الدور: {admin.role}</p>
+                    <p className="text-sm">الدور الحالي: {admin.role}</p>
                   </div>
 
-                  {renderRoleButtons(admin)}
+                  {renderRoleSelector(admin)}
                 </div>
               ))}
             </div>
