@@ -16,7 +16,7 @@ const AdminRegister = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/admin/register', {
+      const res = await axios.post('https://my-backend-dgp2.onrender.com/api/admin/register', {
         username,
         email,
         password,
