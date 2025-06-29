@@ -45,3 +45,45 @@ exports.register = async (req, res) => {
     res.status(500).json({ message: 'خطأ في الخادم', error: err.message });
   }
 };
+
+// تحديث دور أدمن (من miniadmin إلى admin)
+exports.updateAdminRole = async (req, res) => {
+  try {
+    // فقط الأدمن الكامل يستطيع تعديل الدور
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'ليس لديك صلاحية لتعديل الدور' });
+    }
+
+    const adminId = req.params.id;
+    const { role } = req.body;
+
+    if (!['admin', 'miniadmin'].includes(role)) {
+      return res.status(400).json({ message: 'الدور غير صالح' });
+    }
+
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      adminId,
+      { role },
+      { new: true }
+    );
+
+    if (!updatedAdmin) {
+      return res.status(404).json({ message: 'الأدمن غير موجود' });
+    }
+
+    res.status(200).json({ message: 'تم تحديث الدور بنجاح', updatedAdmin });
+
+  } catch (err) {
+    res.status(500).json({ message: 'خطأ في السيرفر', error: err.message });
+  }
+};
+
+
+exports.getAllAdmins = async (req, res) => {
+  try {
+    const admins = await Admin.find().select('-password');
+    res.json(admins);
+  } catch (err) {
+    res.status(500).json({ message: 'خطأ في الخادم', error: err.message });
+  }
+};
