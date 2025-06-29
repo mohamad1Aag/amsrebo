@@ -91,25 +91,17 @@ export default function User() {
       const currentPoints = users.find(u => u._id === editingUserId)?.point || 0;
       const finalPoints = currentPoints + pointToAdd;
   
-      // 1) حدّث النقاط بالسيرفر
+      // تحديث النقاط + تسجيل السجل في السيرفر (في دالة واحدة)
       const res = await axios.patch(
         `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
         { points: finalPoints },
         { headers: { Authorization: `Bearer ${token}` } }
       );
   
-      // 2) سجّل السجل
-      await axios.post(
-        "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
-        { userId: editingUserId, points: pointToAdd, description: `تمت إضافة ${pointToAdd}` },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-  
       if (res.status === 200 && res.data.user) {
-        // ❌ لا تبيّع الصفحة، بل حدث البيانات:
-        await fetchUsers();              // يعيد جلب المستخدمين
-        setEditingUserId(null);          // يقفل المودال
-        setPointToAdd(0);                // يفرغ الحقل
+        await fetchUsers();
+        setEditingUserId(null);
+        setPointToAdd(0);
         alert("تم تحديث النقاط بنجاح");
       } else {
         alert("فشل تحديث النقاط، حاول مرة أخرى");
