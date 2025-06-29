@@ -54,14 +54,14 @@ function Cart() {
     const token = localStorage.getItem('userToken');
     if (!token) {
       alert(t('please_login_first'));
-      navigate('/login');
+      navigate('/UserProfile');
       return;
     }
 
     const payload = parseJwt(token);
     if (!payload || !payload.id) {
       alert(t('invalid_token'));
-      navigate('/login');
+      navigate('/UserProfile');
       return;
     }
 

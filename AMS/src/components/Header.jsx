@@ -23,6 +23,7 @@ function Header() {
     { path: "/about", label: "about_us" },
     { path: "/contact", label: "contact" },
     { path: "/wallet", label: "wallet" },
+    { path: "/AdminRegister", label: "AdminRegister" },
   ];
 
   const captainLinks = [

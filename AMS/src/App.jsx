@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 
 import { ThemeContext } from "./ThemeContext";
 
+
+
 import Home from "./components/Home";
 import Services from "./components/Services";
 import About from "./components/About";
@@ -15,6 +17,7 @@ import ProductList from "./components/Cart/ProductList.jsx";
 import Cart from "./components/Cart/Cart.jsx";
 
 import AdminDash from "../admin-dashboard/src/components/AdminDash.jsx";
+import AdminRegister from "../admin-dashboard/src/components/AdminRegister"; // أو حسب المسار
 import User from "../admin-dashboard/src/pages/Users/User";
 import Product from "../admin-dashboard/src/pages/Products/Products.jsx";
 import ListProducts from "../admin-dashboard/src/pages/Products/ListProducts";
@@ -112,6 +115,8 @@ function App() {
           <Route path="/captain/login" element={<CaptainLogin onCaptainLogin={() => setCaptainAuthenticated(true)} />} />
           <Route path="/captain/register" element={<CaptainRegister />} />
 
+          
+          <Route path="/AdminRegister" element={<AdminRegister />} />
           <Route path="/AdminDash" element={<ProtectedRoute isAllowed={isAuthenticated}><AdminDash /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute isAllowed={isAuthenticated}><User /></ProtectedRoute>} />
           <Route path="/Product" element={<ProtectedRoute isAllowed={isAuthenticated}><Product /></ProtectedRoute>} />
