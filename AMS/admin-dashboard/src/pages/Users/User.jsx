@@ -93,14 +93,14 @@ export default function User() {
   
       // 1) حدّث النقاط بالسيرفر
       const res = await axios.patch(
-        `https://.../api/users/${editingUserId}/points`,
+        `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
         { points: finalPoints },
         { headers: { Authorization: `Bearer ${token}` } }
       );
   
       // 2) سجّل السجل
       await axios.post(
-        "https://.../api/users/point-history/add",
+        "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
         { userId: editingUserId, points: pointToAdd, description: `تمت إضافة ${pointToAdd}` },
         { headers: { Authorization: `Bearer ${token}` } }
       );
