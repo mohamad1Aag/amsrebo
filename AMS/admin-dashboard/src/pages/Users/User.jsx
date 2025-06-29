@@ -89,10 +89,14 @@ export default function User() {
     setIsSubmitting(true); // لمنع التكرار
   
     try {
-      // 🔁 إرسال فقط قيمة الإضافة (وليس المجموع النهائي)
+      // حساب المجموع النهائي للنقاط
+      const currentPoints = users.find((u) => u._id === editingUserId)?.point || 0;
+      const finalPoints = currentPoints + pointToAdd;
+  
+      // إرسال المجموع النهائي للنقاط للباك
       const res = await axios.patch(
         `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
-        { points: pointToAdd },
+        { points: finalPoints },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -101,7 +105,7 @@ export default function User() {
         }
       );
   
-      // ✅ إضافة سجل تاريخ النقاط
+      // إضافة سجل تاريخ النقاط (بناء على القيمة المضافة فقط)
       await axios.post(
         "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
         {
@@ -119,7 +123,7 @@ export default function User() {
         }
       );
   
-      // ✅ تحديث الواجهة بالنقاط الجديدة
+      // تحديث الواجهة بالنقاط الجديدة
       if (res.status === 200 && res.data.user) {
         setUsers(
           users.map((u) =>
