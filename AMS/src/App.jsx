@@ -32,6 +32,7 @@ import CaptainRegister from "../captian/CaptainRegister";
 import CaptainOrders from "../captian/CaptainOrders";
 import MyOrders from "./components/UserProfile/MyOrders";
 import Feedback from "../admin-dashboard/src/components/AdminFeedbackTable"; // عدل المسار حسب مكان الملف
+import SliderUpload from "../admin-dashboard/src/pages/SliderUpload/SliderUpload.jsx"; // عدل المسار حسب مكان الملف
 import ForgotPassword from '../src/components/UserProfile/ForgotPassword';
 import ResetPassword from '../src/components/UserProfile/ResetPassword';
 import PointHistory from '../src/components/UserProfile/PointHistory';
@@ -123,6 +124,8 @@ function App() {
 
       <BrowserRouter>
         <Routes>
+        <Route path="/SliderUpload" element={<SliderUpload />} />
+
           {/* صفحات عامة */}
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />

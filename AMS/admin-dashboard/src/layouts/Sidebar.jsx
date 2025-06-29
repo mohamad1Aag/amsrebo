@@ -64,6 +64,18 @@ function Sidebar({ isOpen, onClose }) {
             </li>
             <li>
               <Link
+                to="/SliderUpload"
+                className={`block px-3 py-2 rounded transition 
+                  hover:bg-yellow-300 hover:text-black
+                  ${darkMode ? "text-gray-100" : "text-purple-900"}`}
+                onClick={onClose}
+              >
+                {t("slider") || "إدارة السلايدر"}
+              </Link>
+            </li>
+
+            <li>
+              <Link
                 to="/Product"
                 className={`block px-3 py-2 rounded transition 
                   hover:bg-yellow-300 hover:text-black
