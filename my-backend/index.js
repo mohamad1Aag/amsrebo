@@ -15,6 +15,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');  // هنا اسم مختلف
 const ratingRoutes = require('./routes/ratingRoutes');
 const feedbackRoutes = require("./routes/feedback");
+const sliderRoutes = require("./routes/slider");
 
 // تحميل متغيرات البيئة
 dotenv.config();
@@ -38,7 +39,7 @@ app.use('/uploads', express.static('uploads')); // 🟢 لعرض الصور من
 app.use('/api', productRoutes);
 app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);  // إضافة راوتر الطلبات
-
+app.use('/api/slider', sliderRoutes);
 app.use('/api/captains', require('./routes/captainRoutes'));
 app.use("/api/feedback", feedbackRoutes);
 // تشغيل الخادم
