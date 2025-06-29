@@ -13,12 +13,13 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'sections', // مجلد تخزين الصور داخل Cloudinary
+    folder: 'sections',
     allowed_formats: ['jpg', 'png', 'jpeg'],
-    public_id: (req, file) => Date.now() + '-' + file.originalname, // اسم الصورة المرفوعة
+    public_id: (req, file) => Date.now() + '-' + file.originalname,
   },
 });
 
 const upload = multer({ storage });
 
-module.exports = upload;
+// صدر الكائن كامل
+module.exports = { cloudinary, upload };
