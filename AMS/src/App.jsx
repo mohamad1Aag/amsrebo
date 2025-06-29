@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
 import { ThemeContext } from "./ThemeContext";
-
-
 
 import Home from "./components/Home";
 import Services from "./components/Services";
@@ -15,10 +12,9 @@ import UserProfile from "./components/UserProfile/UserProfile.jsx";
 import UserEditProfile from "./components/UserProfile/UserEditProfile";
 import ProductList from "./components/Cart/ProductList.jsx";
 import Cart from "./components/Cart/Cart.jsx";
-
 import AdminDash from "../admin-dashboard/src/components/AdminDash.jsx";
-import AdminRegister from "../admin-dashboard/src/components/AdminRegister"; // أو حسب المسار
-import AdminProfile from "../admin-dashboard/src/components/AdminProfile"; // أو حسب المسار
+import AdminRegister from "../admin-dashboard/src/components/AdminRegister";
+import AdminProfile from "../admin-dashboard/src/components/AdminProfile";
 import AdminList from '../admin-dashboard/src/components/AdminList';
 import User from "../admin-dashboard/src/pages/Users/User";
 import Product from "../admin-dashboard/src/pages/Products/Products.jsx";
@@ -29,7 +25,6 @@ import Orders from "../admin-dashboard/src/Orders/Orders.jsx";
 import Reports from "../admin-dashboard/src/Reports/Reports.jsx";
 import Settings from "../admin-dashboard/src/Settings/Settings.jsx";
 import Login from "../admin-dashboard/src/components/Login";
-
 import SectionDetails from "./components/SectionDetails";
 import CaptainDashboard from "../captian/CaptainDashboard";
 import CaptainLogin from "../captian/CaptainLogin";
@@ -42,9 +37,9 @@ import ForgotPassword from "./components/UserProfile/ForgotPassword";
 import ResetPassword from "./components/UserProfile/ResetPassword";
 import PointHistory from "./components/UserProfile/PointHistory";
 import Wallet from "./components/Wallet";
+
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-
 import "./i18n";
 
 function App() {
@@ -76,9 +71,7 @@ function App() {
   };
 
   const renderLogoutButton = (onClick, color) => (
-    <div
-      className="fixed z-50 right-4 top-1/2 -translate-y-1/2 sm:top-auto sm:bottom-4 sm:translate-y-0"
-    >
+    <div className="fixed z-50 right-4 top-1/2 -translate-y-1/2 sm:top-auto sm:bottom-4 sm:translate-y-0">
       <button
         onClick={onClick}
         className={`w-12 h-12 sm:w-10 sm:h-10 rounded-full shadow-lg flex items-center justify-center text-2xl font-bold transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-4 ${
@@ -99,10 +92,8 @@ function App() {
       {userAuthenticated && !isAuthenticated && renderLogoutButton(handleUserLogout, "bg-blue")}
       {captainAuthenticated && renderLogoutButton(handleCaptainLogout, "bg-green")}
 
-      <BrowserRouter>
+      <Router>
         <Routes>
-        <Route path="/wallet" element={<Wallet />} />
-          <Route path="/SliderUpload" element={<SliderUpload />} />
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
@@ -115,8 +106,6 @@ function App() {
           <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
           <Route path="/captain/login" element={<CaptainLogin onCaptainLogin={() => setCaptainAuthenticated(true)} />} />
           <Route path="/captain/register" element={<CaptainRegister />} />
-
-          
           <Route path="/AdminRegister" element={<AdminRegister />} />
           <Route path="/AdminList" element={<AdminList />} />
           <Route path="/AdminProfile" element={<AdminProfile />} />
@@ -131,18 +120,18 @@ function App() {
           <Route path="/list-sections" element={<ProtectedRoute isAllowed={isAuthenticated}><Settings /></ProtectedRoute>} />
           <Route path="/add-product" element={<ProtectedRoute isAllowed={isAuthenticated}><AddProduct /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute isAllowed={isAuthenticated}><ListProducts /></ProtectedRoute>} />
-
           <Route path="/section/:id" element={<SectionDetails />} />
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/CaptainDashboard" element={<ProtectedRoute isAllowed={captainAuthenticated} redirectPath="/captain/login"><CaptainDashboard /></ProtectedRoute>} />
-          <Route path="/Feedback" element={<ProtectedRoute isAllowed={isAuthenticated}><Feedback /></ProtectedRoute>} />
           <Route path="/captain/dashboard/orders" element={<ProtectedRoute isAllowed={captainAuthenticated} redirectPath="/captain/login"><CaptainOrders /></ProtectedRoute>} />
-
+          <Route path="/Feedback" element={<ProtectedRoute isAllowed={isAuthenticated}><Feedback /></ProtectedRoute>} />
+          <Route path="/SliderUpload" element={<SliderUpload />} />
+          <Route path="/wallet" element={<Wallet />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/PointHistory" element={<PointHistory />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </>
   );
 }
