@@ -18,6 +18,7 @@ import Cart from "./components/Cart/Cart.jsx";
 
 import AdminDash from "../admin-dashboard/src/components/AdminDash.jsx";
 import AdminRegister from "../admin-dashboard/src/components/AdminRegister"; // أو حسب المسار
+import AdminList from '../admin-dashboard/src/components/AdminList';
 import User from "../admin-dashboard/src/pages/Users/User";
 import Product from "../admin-dashboard/src/pages/Products/Products.jsx";
 import ListProducts from "../admin-dashboard/src/pages/Products/ListProducts";
@@ -40,7 +41,6 @@ import ForgotPassword from "./components/UserProfile/ForgotPassword";
 import ResetPassword from "./components/UserProfile/ResetPassword";
 import PointHistory from "./components/UserProfile/PointHistory";
 import Wallet from "./components/Wallet";
-
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 
@@ -117,6 +117,7 @@ function App() {
 
           
           <Route path="/AdminRegister" element={<AdminRegister />} />
+          <Route path="/AdminList" element={<AdminList />} />
           <Route path="/AdminDash" element={<ProtectedRoute isAllowed={isAuthenticated}><AdminDash /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute isAllowed={isAuthenticated}><User /></ProtectedRoute>} />
           <Route path="/Product" element={<ProtectedRoute isAllowed={isAuthenticated}><Product /></ProtectedRoute>} />

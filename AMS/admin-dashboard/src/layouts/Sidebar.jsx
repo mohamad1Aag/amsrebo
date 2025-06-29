@@ -73,6 +73,17 @@ function Sidebar({ isOpen, onClose }) {
                 {t("slider") || "إدارة السلايدر"}
               </Link>
             </li>
+            <li>
+              <Link
+                to="/AdminList"
+                className={`block px-3 py-2 rounded transition 
+                  hover:bg-yellow-300 hover:text-black
+                  ${darkMode ? "text-gray-100" : "text-purple-900"}`}
+                onClick={onClose}
+              >
+                {t("AdminList") || "إدارة الادمن"}
+              </Link>
+            </li>
 
             <li>
               <Link
