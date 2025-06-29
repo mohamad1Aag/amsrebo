@@ -30,7 +30,7 @@ const AdminList = () => {
       );
       setAdmins(res.data);
     } catch (err) {
-      setMessage(t("failed_to_load_admins") || "فشل في تحميل الأدمنات");
+      setMessage("فشل في تحميل الأدمنات");
     }
     setLoading(false);
   };
@@ -63,44 +63,48 @@ const AdminList = () => {
   const renderRoleButtons = (admin) => {
     if (currentRole !== "admin" || admin._id === currentId) return null;
 
-    return (
-      <div className="flex flex-wrap gap-2 justify-end">
-        {admin.role === "miniadmin" && (
+    if (admin.role === "miniadmin") {
+      return (
+        <button
+          onClick={() => changeRole(admin._id, "middleadmin")}
+          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+        >
+          ترقية إلى middleadmin
+        </button>
+      );
+    }
+
+    if (admin.role === "middleadmin") {
+      return (
+        <div className="flex gap-2">
           <button
-            onClick={() => changeRole(admin._id, "middleadmin")}
-            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            onClick={() => changeRole(admin._id, "admin")}
+            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
           >
-            ترقية إلى middleadmin
+            ترقية إلى admin
           </button>
-        )}
-
-        {admin.role === "middleadmin" && (
-          <>
-            <button
-              onClick={() => changeRole(admin._id, "admin")}
-              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-            >
-              ترقية إلى admin
-            </button>
-            <button
-              onClick={() => changeRole(admin._id, "miniadmin")}
-              className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-            >
-              تخفيض إلى miniadmin
-            </button>
-          </>
-        )}
-
-        {admin.role === "admin" && (
           <button
-            onClick={() => changeRole(admin._id, "middleadmin")}
+            onClick={() => changeRole(admin._id, "miniadmin")}
             className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
           >
-            تخفيض إلى middleadmin
+            تخفيض إلى miniadmin
           </button>
-        )}
-      </div>
-    );
+        </div>
+      );
+    }
+
+    if (admin.role === "admin") {
+      return (
+        <button
+          onClick={() => changeRole(admin._id, "middleadmin")}
+          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+        >
+          تخفيض إلى middleadmin
+        </button>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -111,18 +115,18 @@ const AdminList = () => {
 
         <main className="flex-1 p-6 text-right">
           <h2 className={`text-2xl font-bold mb-6 ${darkMode ? "text-white" : "text-gray-800"}`}>
-            {t("admin_list") || "قائمة الأدمنات"}
+            قائمة الأدمنات
           </h2>
 
           {message && (
-            <p className={`mb-4 text-center ${message.includes("فشل") ? "text-red-500" : "text-green-500"}`}>
+            <p className={`mb-4 text-center ${message.includes("❌") ? "text-red-500" : "text-green-500"}`}>
               {message}
             </p>
           )}
 
           {loading ? (
             <div className={`text-center ${darkMode ? "text-white" : "text-gray-700"}`}>
-              {t("loading") || "جارٍ تحميل البيانات..."}
+              جارٍ تحميل البيانات...
             </div>
           ) : (
             <div className="grid gap-4 max-w-4xl mx-auto">
