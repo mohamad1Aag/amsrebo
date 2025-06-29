@@ -17,13 +17,18 @@ function Header() {
   const toggleNav = () => setNavVisible(!navVisible);
   const changeLanguage = (lang) => i18n.changeLanguage(lang);
 
+  // روابط لوحة الإدارة فقط
+  const adminLinks = [
+    { path: "/AdminDash", label: "admin_dashboard" },
+    { path: "/AdminRegister", label: "AdminRegister" },
+  ];
+
+  // روابط عامة بدون روابط لوحة الإدارة والتسجيل
   const generalLinks = [
     { path: "/", label: "home" },
-    { path: "/AdminDash", label: "admin_dashboard" },
     { path: "/about", label: "about_us" },
     { path: "/contact", label: "contact" },
     { path: "/wallet", label: "wallet" },
-    { path: "/AdminRegister", label: "AdminRegister" },
   ];
 
   const captainLinks = [
@@ -74,8 +79,19 @@ function Header() {
           AMS
         </div>
 
-        {/* روابط الهيدر في شاشات كبيرة */}
+        {/* روابط لوحة الإدارة فقط في شاشات كبيرة */}
         <nav className="hidden md:flex items-center space-x-6 font-medium text-lg">
+          {adminLinks.map(({ path, label }) => (
+            <Link
+              key={path}
+              to={path}
+              className="relative px-3 py-2 rounded-lg hover:bg-yellow-300 hover:text-black transition duration-300"
+            >
+              {t(label)}
+            </Link>
+          ))}
+
+          {/* روابط عامة */}
           {generalLinks.map(({ path, label }) => (
             <Link
               key={path}
@@ -83,7 +99,6 @@ function Header() {
               className="relative px-3 py-2 rounded-lg hover:bg-yellow-300 hover:text-black transition duration-300"
             >
               {t(label)}
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-300 rounded-full opacity-0 hover:opacity-100 transition-opacity duration-300"></span>
             </Link>
           ))}
 
@@ -258,6 +273,18 @@ function Header() {
           }`}
         >
           <div className="flex flex-col gap-3 font-semibold text-lg">
+            {/* روابط لوحة الإدارة فقط */}
+            {adminLinks.map(({ path, label }) => (
+              <Link
+                key={path}
+                to={path}
+                className="block px-3 py-3 rounded-lg hover:bg-yellow-300 hover:text-black transition"
+                onClick={() => setNavVisible(false)}
+              >
+                {t(label)}
+              </Link>
+            ))}
+
             {/* روابط عامة */}
             {generalLinks.map(({ path, label }) => (
               <Link
