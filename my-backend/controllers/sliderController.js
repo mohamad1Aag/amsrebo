@@ -1,5 +1,5 @@
 const Slider = require('../models/Slider');
-const { cloudinary } = require('../config/cloudinary');
+const { cloudinary } = require('../middlewares/cloudinary');
 
 exports.uploadSlider = async (req, res) => {
     try {
