@@ -79,23 +79,20 @@ export default function User() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const handlePointSubmit = async (e) => {
     e.preventDefault();
+  
     if (isSubmitting) return;
-    console.log("📤 Submitting point once...");
     if (pointToAdd <= 0) {
       alert(t("enter_valid_points") || "يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
       return;
     }
   
-    setIsSubmitting(true);
+    setIsSubmitting(true); // لمنع التكرار
   
     try {
-      const user = users.find((u) => u._id === editingUserId);
-      const newPoint = (user.point || 0) + pointToAdd;
-  
-      // ⬅️ إرسال النقاط الجديدة بعد الجمع
+      // 🔁 إرسال فقط قيمة الإضافة (وليس المجموع النهائي)
       const res = await axios.patch(
         `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
-        { point: newPoint },
+        { points: pointToAdd },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -104,28 +101,29 @@ export default function User() {
         }
       );
   
-      if (res.status === 200) {
-        await axios.post(
-          "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
-          {
-            userId: editingUserId,
-            points: pointToAdd,
-            description:
-              t("points_added_by_admin", { count: pointToAdd }) ||
-              `تمت إضافة ${pointToAdd} نقطة بواسطة الإدارة`,
+      // ✅ إضافة سجل تاريخ النقاط
+      await axios.post(
+        "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
+        {
+          userId: editingUserId,
+          points: pointToAdd,
+          description:
+            t("points_added_by_admin", { count: pointToAdd }) ||
+            `تمت إضافة ${pointToAdd} نقطة بواسطة الإدارة`,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        }
+      );
   
-        // تحديث النقاط محلياً
+      // ✅ تحديث الواجهة بالنقاط الجديدة
+      if (res.status === 200 && res.data.user) {
         setUsers(
           users.map((u) =>
-            u._id === editingUserId ? { ...u, point: newPoint } : u
+            u._id === editingUserId ? { ...u, point: res.data.user.point } : u
           )
         );
         alert(t("points_updated_success") || "تم تحديث النقاط بنجاح");
@@ -140,7 +138,7 @@ export default function User() {
           (t("points_update_error") || "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم")
       );
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // إعادة الحالة بعد الإرسال
     }
   };
   
