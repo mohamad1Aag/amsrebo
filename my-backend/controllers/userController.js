@@ -186,11 +186,21 @@ const updateUserPoints = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
- console.log(`⚙️ [updateUserPoints] userId=${userId} | oldPoints=${user.point || 0} | finalPoints=${finalPoints}`);
+    const oldPoints = user.point || 0;
+    const pointsDifference = finalPoints - oldPoints;
 
-
-    user.point = finalPoints; // تعيين المجموع النهائي مباشرة
+    user.point = finalPoints;
     await user.save();
+
+    // فقط إذا كانت هناك فرق نقاط نسجلها
+    if (pointsDifference !== 0) {
+      await PointHistory.create({
+        userId,
+        pointsChanged: pointsDifference,
+        type: pointsDifference > 0 ? 'شحن نقاط' : 'خصم نقاط',
+        description: pointsDifference > 0 ? 'تم شحن النقاط' : 'تم خصم النقاط',
+      });
+    }
 
     res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
   } catch (err) {
@@ -198,6 +208,7 @@ const updateUserPoints = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ في الخادم' });
   }
 };
+
 
 
 
