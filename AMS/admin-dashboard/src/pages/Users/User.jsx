@@ -90,12 +90,20 @@ export default function User() {
   
     try {
       // حساب المجموع النهائي للنقاط
-      const currentPoints = users.find((u) => u._id === editingUserId)?.point || 0;
+      const currentPoints =
+        users.find((u) => u._id === editingUserId)?.point || 0;
       const finalPoints = currentPoints + pointToAdd;
-      console.log('⚙️ [handlePointSubmit] editingUserId=', editingUserId,
-      +                  'currentPoints=', currentPoints,
-      +                  'pointToAdd=', pointToAdd,
-      +                  'finalPoints=', finalPoints);
+      console.log(
+        "⚙️ [handlePointSubmit] editingUserId=",
+        editingUserId,
+        "currentPoints=",
+        currentPoints,
+        "pointToAdd=",
+        pointToAdd,
+        "finalPoints=",
+        finalPoints
+      );
+  
       // إرسال المجموع النهائي للنقاط للباك
       const res = await axios.patch(
         `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
@@ -128,26 +136,38 @@ export default function User() {
   
       // تحديث الواجهة بالنقاط الجديدة
       if (res.status === 200 && res.data.user) {
-        setUsers(
-          users.map((u) =>
+        // خيار 1: فقط تحديث المصفوفة بدون إعادة تحميل الصفحة
+        setUsers((prev) =>
+          prev.map((u) =>
             u._id === editingUserId ? { ...u, point: res.data.user.point } : u
           )
         );
+        // إعادة جلب البيانات من السيرفر (اختياري)
+        // await fetchUsers();
+  
+        //  خيار 2: إعادة تحميل الصفحة بالكامل
+         window.location.reload();
+  
         alert(t("points_updated_success") || "تم تحديث النقاط بنجاح");
         setEditingUserId(null);
       } else {
-        alert(t("points_update_failed") || "فشل تحديث النقاط، حاول مرة أخرى");
+        alert(
+          t("points_update_failed") ||
+            "فشل تحديث النقاط، حاول مرة أخرى"
+        );
       }
     } catch (error) {
       console.error("Error updating points:", error);
       alert(
         error.response?.data?.message ||
-          (t("points_update_error") || "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم")
+          (t("points_update_error") ||
+            "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم")
       );
     } finally {
       setIsSubmitting(false); // إعادة الحالة بعد الإرسال
     }
   };
+  
   
 
   const filteredUsers = users.filter((user) =>
