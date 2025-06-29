@@ -357,7 +357,31 @@
     "insufficient_points_message": "رصيدك الحالي لا يكفي لإتمام الطلب. يرجى التواصل معنا لشحن الرصيد.",
     "contact_whatsapp": "تواصل عبر واتساب",
     "contact_telegram": "تواصل عبر تيليغرام",
-    "wallet": "شحن المحفظة"
+    "wallet": "شحن المحفظة",
+    
+      "admin_profile": "ملف الأدمن",
+      "username": "اسم المستخدم",
+      "email": "البريد الإلكتروني",
+      "new_password_optional": "كلمة المرور الجديدة (اختياري):",
+      "leave_blank_if_no_change": "اتركها فارغة إذا لا تريد التغيير",
+      "save_changes": "حفظ التغييرات",
+      "not_logged_in": "لم يتم تسجيل الدخول",
+      "fetch_error": "خطأ في جلب البيانات",
+      "username_email_required": "الاسم والبريد الإلكتروني مطلوبان",
+      "update_error": "خطأ في تحديث البيانات",
+      "loading": "جارٍ تحميل البيانات...",
+      
+        "admin_register": "تسجيل أدمن جديد",
+        "username": "اسم المستخدم",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "register": "تسجيل",
+        "fill_all_fields": "يرجى تعبئة جميع الحقول",
+        "registration_error": "حدث خطأ في التسجيل"
+      
+      
+    
+    
     
   
   
