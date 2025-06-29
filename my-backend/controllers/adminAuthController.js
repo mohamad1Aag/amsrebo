@@ -88,8 +88,6 @@ exports.getAllAdmins = async (req, res) => {
   }
 };
 
-const bcrypt = require('bcryptjs');
-const Admin = require('../models/Admin');
 
 // جلب بيانات الأدمن (حسب id من التوكن)
 exports.getAdminProfile = async (req, res) => {
