@@ -9,20 +9,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// إعداد التخزين عبر Cloudinary
+// إعداد التخزين إلى Cloudinary
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+  cloudinary,
   params: {
-    folder: 'sections',
+    folder: 'sliders', // تأكد أنه مجلد sliders أو أي اسم تريده
     allowed_formats: ['jpg', 'png', 'jpeg'],
-    public_id: (req, file) => Date.now() + '-' + file.originalname,
+    public_id: (req, file) => `${Date.now()}-${file.originalname}`,
   },
 });
 
 const upload = multer({ storage });
 
-// صدر الكائن كامل
-module.exports = {
-  upload,
-  cloudinary
-};
+module.exports = { cloudinary, upload };

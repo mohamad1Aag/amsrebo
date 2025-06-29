@@ -30,20 +30,19 @@ const verifyAdmin = (req) => {
 
 exports.uploadSlider = async (req, res) => {
     try {
-      verifyAdmin(req); // تحقق من صلاحية الأدمن
+      verifyAdmin(req);
   
       const { description_ar, description_en } = req.body;
   
-      // ✅ التأكد من أن Cloudinary أعاد الرابط الصحيح
-      const imageUrl = req.file?.path || req.file?.secure_url; // Cloudinary يرجعها غالبًا في path أو secure_url
+      const imageUrl = req.file?.path || req.file?.secure_url;
       const publicId = req.file?.filename || req.file?.public_id;
   
       if (!imageUrl) {
-        return res.status(400).json({ msg: 'لم يتم رفع صورة بنجاح' });
+        return res.status(400).json({ msg: 'لم يتم رفع صورة' });
       }
   
       const newSlider = await Slider.create({
-        image: imageUrl,
+        image: imageUrl, // الآن هذا سيكون رابط Cloudinary
         public_id: publicId,
         description: {
           ar: description_ar,
