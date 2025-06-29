@@ -90,7 +90,7 @@ const handlePointSubmit = async (e) => {
 
   try {
     const user = users.find((u) => u._id === editingUserId);
-    const newPoint = (user.point || 0) + pointToAdd;
+    const newPoint = pointToAdd; 
 
     const res = await axios.patch(
       `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
