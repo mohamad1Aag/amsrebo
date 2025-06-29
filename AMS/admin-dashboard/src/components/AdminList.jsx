@@ -3,33 +3,30 @@ import axios from "axios";
 import Header from "../../../src/components/Header";
 import Sidebar from "../../src/layouts/Sidebar";
 import { useTranslation } from "react-i18next";
-import { ThemeContext } from "../../../src/ThemeContext"; // بافتراض عندك ThemeContext للتحكم بالثيم
+import { ThemeContext } from "../../../src/ThemeContext";
 
 const AdminList = () => {
   const { t } = useTranslation();
   const { darkMode } = useContext(ThemeContext);
 
   const [admins, setAdmins] = useState([]);
-  const [currentRole, setCurrentRole] = useState(""); // دور الأدمن الحالي
-  const [currentId, setCurrentId] = useState(""); // id الأدمن الحالي
+  const [currentRole, setCurrentRole] = useState("");
+  const [currentId, setCurrentId] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("token"); // تأكد من وجود التوكن
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchAdmins();
-    decodeToken(); // لمعرفة دور الأدمن الحالي وid
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    decodeToken();
   }, []);
 
   const fetchAdmins = async () => {
     try {
       const res = await axios.get(
         "https://my-backend-dgp2.onrender.com/api/admin/all",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setAdmins(res.data);
     } catch (err) {
@@ -42,7 +39,7 @@ const AdminList = () => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setCurrentRole(payload.role);
-      setCurrentId(payload.id || payload._id); // حسب ما مخزن في التوكن
+      setCurrentId(payload.id || payload._id);
     } catch {
       setCurrentRole("");
       setCurrentId("");
@@ -56,16 +53,54 @@ const AdminList = () => {
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage(
-        t("role_changed_success", { role: newRole }) ||
-          `تم تغيير الدور بنجاح إلى "${newRole}"`
-      );
-      fetchAdmins(); // إعادة تحميل
+      setMessage(`✅ تم تغيير الدور إلى ${newRole}`);
+      fetchAdmins();
     } catch (err) {
-      setMessage(
-        err.response?.data?.message || t("role_change_failed") || "فشل في تغيير الدور"
-      );
+      setMessage(err.response?.data?.message || "❌ فشل في تغيير الدور");
     }
+  };
+
+  const renderRoleButtons = (admin) => {
+    if (currentRole !== "admin" || admin._id === currentId) return null;
+
+    return (
+      <div className="flex flex-wrap gap-2 justify-end">
+        {admin.role === "miniadmin" && (
+          <button
+            onClick={() => changeRole(admin._id, "middleadmin")}
+            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+          >
+            ترقية إلى middleadmin
+          </button>
+        )}
+
+        {admin.role === "middleadmin" && (
+          <>
+            <button
+              onClick={() => changeRole(admin._id, "admin")}
+              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+            >
+              ترقية إلى admin
+            </button>
+            <button
+              onClick={() => changeRole(admin._id, "miniadmin")}
+              className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+            >
+              تخفيض إلى miniadmin
+            </button>
+          </>
+        )}
+
+        {admin.role === "admin" && (
+          <button
+            onClick={() => changeRole(admin._id, "middleadmin")}
+            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+          >
+            تخفيض إلى middleadmin
+          </button>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -75,30 +110,18 @@ const AdminList = () => {
         <Sidebar />
 
         <main className="flex-1 p-6 text-right">
-          <h2
-            className={`text-2xl font-bold mb-6 ${
-              darkMode ? "text-white" : "text-gray-800"
-            }`}
-          >
+          <h2 className={`text-2xl font-bold mb-6 ${darkMode ? "text-white" : "text-gray-800"}`}>
             {t("admin_list") || "قائمة الأدمنات"}
           </h2>
 
           {message && (
-            <p
-              className={`mb-4 text-center ${
-                message.includes("فشل") ? "text-red-500" : "text-green-500"
-              }`}
-            >
+            <p className={`mb-4 text-center ${message.includes("فشل") ? "text-red-500" : "text-green-500"}`}>
               {message}
             </p>
           )}
 
           {loading ? (
-            <div
-              className={`text-center ${
-                darkMode ? "text-white" : "text-gray-700"
-              }`}
-            >
+            <div className={`text-center ${darkMode ? "text-white" : "text-gray-700"}`}>
               {t("loading") || "جارٍ تحميل البيانات..."}
             </div>
           ) : (
@@ -113,31 +136,10 @@ const AdminList = () => {
                   <div>
                     <p className="font-semibold">{admin.username}</p>
                     <p className="text-sm text-gray-400">{admin.email}</p>
-                    <p className="text-sm">
-                      {t("role") || "الدور"}: {admin.role}
-                    </p>
+                    <p className="text-sm">الدور: {admin.role}</p>
                   </div>
 
-                  {currentRole === "admin" && admin._id !== currentId && (
-                    <div className="flex space-x-2">
-                      {admin.role === "miniadmin" && (
-                        <button
-                          onClick={() => changeRole(admin._id, "admin")}
-                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                        >
-                          {t("promote_to_admin") || "ترقية إلى أدمن"}
-                        </button>
-                      )}
-                      {admin.role === "admin" && (
-                        <button
-                          onClick={() => changeRole(admin._id, "miniadmin")}
-                          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                        >
-                          {t("demote_to_miniadmin") || "تخفيض إلى miniadmin"}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  {renderRoleButtons(admin)}
                 </div>
               ))}
             </div>
