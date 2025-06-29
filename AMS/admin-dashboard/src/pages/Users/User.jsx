@@ -92,7 +92,10 @@ export default function User() {
       // حساب المجموع النهائي للنقاط
       const currentPoints = users.find((u) => u._id === editingUserId)?.point || 0;
       const finalPoints = currentPoints + pointToAdd;
-  
+      console.log('⚙️ [handlePointSubmit] editingUserId=', editingUserId,
+      +                  'currentPoints=', currentPoints,
+      +                  'pointToAdd=', pointToAdd,
+      +                  'finalPoints=', finalPoints);
       // إرسال المجموع النهائي للنقاط للباك
       const res = await axios.patch(
         `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
