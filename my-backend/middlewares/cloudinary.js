@@ -22,4 +22,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 // صدر الكائن كامل
-module.exports = { cloudinary, upload };
+module.exports = {
+  upload,
+  cloudinary
+};
