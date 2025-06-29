@@ -87,3 +87,45 @@ exports.getAllAdmins = async (req, res) => {
     res.status(500).json({ message: 'خطأ في الخادم', error: err.message });
   }
 };
+
+const bcrypt = require('bcryptjs');
+const Admin = require('../models/Admin');
+
+// جلب بيانات الأدمن (حسب id من التوكن)
+exports.getAdminProfile = async (req, res) => {
+  try {
+    const admin = await Admin.findById(req.user._id).select('-password');
+    if (!admin) return res.status(404).json({ message: 'الأدمن غير موجود' });
+
+    res.json(admin);
+  } catch (err) {
+    res.status(500).json({ message: 'خطأ في السيرفر', error: err.message });
+  }
+};
+
+// تحديث بيانات الأدمن (باستثناء الدور)
+exports.updateAdminProfile = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const admin = await Admin.findById(req.user._id);
+
+    if (!admin) return res.status(404).json({ message: 'الأدمن غير موجود' });
+
+    // تحديث الحقول (لا تعدل role)
+    if (username) admin.username = username;
+    if (email) admin.email = email;
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      admin.password = await bcrypt.hash(password, salt);
+    }
+
+    await admin.save();
+
+    const updatedAdmin = await Admin.findById(req.user._id).select('-password');
+    res.json({ message: 'تم تحديث الملف الشخصي بنجاح', admin: updatedAdmin });
+  } catch (err) {
+    res.status(500).json({ message: 'خطأ في السيرفر', error: err.message });
+  }
+};
+
