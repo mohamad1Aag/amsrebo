@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { ThemeContext } from '../../ThemeContext';
-import Header from '../../../src/components/Header'; // تأكد من المسار حسب مشروعك
+import Header from "../../../src/components/Header";
+import { useTranslation } from "react-i18next";
+import { ThemeContext } from "../../../src/ThemeContext";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
