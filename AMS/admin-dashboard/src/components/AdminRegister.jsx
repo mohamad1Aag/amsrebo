@@ -1,9 +1,8 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import Header from "../../../src/components/Header";
-import Sidebar from "../../src/layouts/Sidebar";
 import { useTranslation } from "react-i18next";
-import { ThemeContext } from "../../../src/ThemeContext"; // بافتراض عندك ThemeContext للتحكم بالثيم
+import { ThemeContext } from "../../../src/ThemeContext";
 
 const AdminRegister = () => {
   const { t } = useTranslation();
@@ -50,65 +49,61 @@ const AdminRegister = () => {
       }`}
     >
       <Header />
-      <div className="flex flex-1">
-        <Sidebar />
+      <main className="flex-1 flex items-center justify-center p-6 text-right">
+        <form
+          onSubmit={handleSubmit}
+          className={`bg-white ${
+            darkMode ? "bg-gray-800 text-white" : ""
+          } p-8 rounded-lg shadow-md w-full max-w-md`}
+        >
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            {t("admin_register") || "تسجيل أدمن جديد"}
+          </h2>
 
-        <main className="flex-1 flex items-center justify-center p-6 text-right">
-          <form
-            onSubmit={handleSubmit}
-            className={`bg-white ${
-              darkMode ? "bg-gray-800 text-white" : ""
-            } p-8 rounded-lg shadow-md w-full max-w-md`}
+          <input
+            type="text"
+            placeholder={t("username") || "اسم المستخدم"}
+            className="w-full p-3 mb-4 border rounded outline-none focus:ring focus:ring-blue-300 text-right"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <input
+            type="email"
+            placeholder={t("email") || "البريد الإلكتروني"}
+            className="w-full p-3 mb-4 border rounded outline-none focus:ring focus:ring-blue-300 text-right"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            type="password"
+            placeholder={t("password") || "كلمة المرور"}
+            className="w-full p-3 mb-6 border rounded outline-none focus:ring focus:ring-blue-300 text-right"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition"
           >
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              {t("admin_register") || "تسجيل أدمن جديد"}
-            </h2>
+            {t("register") || "تسجيل"}
+          </button>
 
-            <input
-              type="text"
-              placeholder={t("username") || "اسم المستخدم"}
-              className="w-full p-3 mb-4 border rounded outline-none focus:ring focus:ring-blue-300 text-right"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-
-            <input
-              type="email"
-              placeholder={t("email") || "البريد الإلكتروني"}
-              className="w-full p-3 mb-4 border rounded outline-none focus:ring focus:ring-blue-300 text-right"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <input
-              type="password"
-              placeholder={t("password") || "كلمة المرور"}
-              className="w-full p-3 mb-6 border rounded outline-none focus:ring focus:ring-blue-300 text-right"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition"
+          {message && (
+            <p
+              className={`mt-4 text-center ${
+                message.includes("خطأ") || message.includes("error")
+                  ? "text-red-600"
+                  : "text-green-600"
+              }`}
             >
-              {t("register") || "تسجيل"}
-            </button>
-
-            {message && (
-              <p
-                className={`mt-4 text-center ${
-                  message.includes("خطأ") || message.includes("error")
-                    ? "text-red-600"
-                    : "text-green-600"
-                }`}
-              >
-                {message}
-              </p>
-            )}
-          </form>
-        </main>
-      </div>
+              {message}
+            </p>
+          )}
+        </form>
+      </main>
     </div>
   );
 };
