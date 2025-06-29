@@ -146,8 +146,8 @@ export default function User() {
         // await fetchUsers();
   
         //  خيار 2: إعادة تحميل الصفحة بالكامل
-         window.location.reload();
-  
+        window.location.replace(window.location.pathname + '?_=' + Date.now());
+          
         alert(t("points_updated_success") || "تم تحديث النقاط بنجاح");
         setEditingUserId(null);
       } else {
