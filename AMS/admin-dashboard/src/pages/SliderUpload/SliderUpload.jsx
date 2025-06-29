@@ -15,7 +15,7 @@ export default function SliderUpload() {
 
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/slider/upload',
+        'https://my-backend-dgp2.onrender.com/api/slider/upload',
         formData,
         {
           headers: {
