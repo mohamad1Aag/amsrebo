@@ -15,8 +15,8 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(400).json({ message: 'كلمة المرور غير صحيحة' });
 
-    // ✅ التأكد من أن الدور هو "admin" فقط
-    if (admin.role !== 'admin') {
+    // ✅ السماح فقط للأدوار admin و middleadmin
+    if (admin.role !== 'admin' && admin.role !== 'middleadmin') {
       return res.status(403).json({ message: 'غير مصرح لك بالدخول' });
     }
 
@@ -61,7 +61,7 @@ exports.updateAdminRole = async (req, res) => {
     const adminId = req.params.id;
     const { role } = req.body;
 
-    if (!['admin', 'miniadmin'].includes(role)) {
+    if (!['admin', 'miniadmin', 'middleadmin'].includes(role)) {
       return res.status(400).json({ message: 'الدور غير صالح' });
     }
 
