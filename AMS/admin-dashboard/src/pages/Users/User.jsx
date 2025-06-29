@@ -80,6 +80,7 @@ export default function User() {
   const handlePointSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
+    console.log("📤 Submitting point once...");
     if (pointToAdd <= 0) {
       alert(t("enter_valid_points") || "يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
       return;
