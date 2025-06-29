@@ -5,8 +5,8 @@ const { uploadSlider, getSliders, deleteSlider } = require('../controllers/slide
 const protect = require('../middlewares/protect');
 const adminProtect = require('../middlewares/adminProtect');
 
-router.post('/upload', protect, adminProtect, upload.single('image'), uploadSlider);
+router.post('/upload', upload.single('image'), uploadSlider);
 router.get('/', getSliders);
-router.delete('/:id', protect, adminProtect, deleteSlider);
+router.delete('/:id', deleteSlider);
 
 module.exports = router;
