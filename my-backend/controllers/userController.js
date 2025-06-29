@@ -176,9 +176,9 @@ const deleteUser = async (req, res) => {
 
 const updateUserPoints = async (req, res) => {
   const userId = req.params.id;
-  const addedPoints = req.body.points; // اسم جديد يوضح الفرق
+  const finalPoints = req.body.points; // النقاط النهائية
 
-  if (typeof addedPoints !== 'number' || addedPoints <= 0) {
+  if (typeof finalPoints !== 'number' || finalPoints < 0) {
     return res.status(400).json({ message: 'النقاط غير صالحة' });
   }
 
@@ -186,7 +186,7 @@ const updateUserPoints = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-    user.point = (user.point || 0) + addedPoints; // فقط نجمع، لا نبدل
+    user.point = finalPoints; // تعيين المجموع النهائي مباشرة
     await user.save();
 
     res.status(200).json({ message: 'تم تحديث النقاط بنجاح', user });
@@ -195,6 +195,7 @@ const updateUserPoints = async (req, res) => {
     res.status(500).json({ message: 'حدث خطأ في الخادم' });
   }
 };
+
 
 
 const forgotPasswordByUsername = async (req, res) => {
