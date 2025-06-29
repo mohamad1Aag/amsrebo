@@ -75,96 +75,50 @@ export default function User() {
     const value = e.target.value;
     setPointToAdd(value === "" || Number(value) < 0 ? 0 : Number(value));
   };
+// فوق، قبل handlePointSubmit:
+
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const handlePointSubmit = async (e) => {
     e.preventDefault();
-  
     if (isSubmitting) return;
     if (pointToAdd <= 0) {
-      alert(t("enter_valid_points") || "يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
+      alert("يجب إدخال قيمة نقاط صحيحة أكبر من صفر");
       return;
     }
-  
-    setIsSubmitting(true); // لمنع التكرار
-  
+    setIsSubmitting(true);
     try {
-      // حساب المجموع النهائي للنقاط
-      const currentPoints =
-        users.find((u) => u._id === editingUserId)?.point || 0;
+      const currentPoints = users.find(u => u._id === editingUserId)?.point || 0;
       const finalPoints = currentPoints + pointToAdd;
-      console.log(
-        "⚙️ [handlePointSubmit] editingUserId=",
-        editingUserId,
-        "currentPoints=",
-        currentPoints,
-        "pointToAdd=",
-        pointToAdd,
-        "finalPoints=",
-        finalPoints
-      );
   
-      // إرسال المجموع النهائي للنقاط للباك
+      // 1) حدّث النقاط بالسيرفر
       const res = await axios.patch(
-        `https://my-backend-dgp2.onrender.com/api/users/${editingUserId}/points`,
+        `https://.../api/users/${editingUserId}/points`,
         { points: finalPoints },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
   
-      // إضافة سجل تاريخ النقاط (بناء على القيمة المضافة فقط)
+      // 2) سجّل السجل
       await axios.post(
-        "https://my-backend-dgp2.onrender.com/api/users/point-history/add",
-        {
-          userId: editingUserId,
-          points: pointToAdd,
-          description:
-            t("points_added_by_admin", { count: pointToAdd }) ||
-            `تمت إضافة ${pointToAdd} نقطة بواسطة الإدارة`,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        "https://.../api/users/point-history/add",
+        { userId: editingUserId, points: pointToAdd, description: `تمت إضافة ${pointToAdd}` },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
   
-      // تحديث الواجهة بالنقاط الجديدة
       if (res.status === 200 && res.data.user) {
-        // خيار 1: فقط تحديث المصفوفة بدون إعادة تحميل الصفحة
-        setUsers((prev) =>
-          prev.map((u) =>
-            u._id === editingUserId ? { ...u, point: res.data.user.point } : u
-          )
-        );
-        // إعادة جلب البيانات من السيرفر (اختياري)
-        // await fetchUsers();
-  
-        //  خيار 2: إعادة تحميل الصفحة بالكامل
-        window.location.replace(window.location.pathname + '?_=' + Date.now());
-          
-        alert(t("points_updated_success") || "تم تحديث النقاط بنجاح");
-        setEditingUserId(null);
+        // ❌ لا تبيّع الصفحة، بل حدث البيانات:
+        await fetchUsers();              // يعيد جلب المستخدمين
+        setEditingUserId(null);          // يقفل المودال
+        setPointToAdd(0);                // يفرغ الحقل
+        alert("تم تحديث النقاط بنجاح");
       } else {
-        alert(
-          t("points_update_failed") ||
-            "فشل تحديث النقاط، حاول مرة أخرى"
-        );
+        alert("فشل تحديث النقاط، حاول مرة أخرى");
       }
-    } catch (error) {
-      console.error("Error updating points:", error);
-      alert(
-        error.response?.data?.message ||
-          (t("points_update_error") ||
-            "حدث خطأ أثناء تحديث النقاط، تحقق من الخادم")
-      );
+    } catch (err) {
+      console.error(err);
+      alert("حدث خطأ أثناء تحديث النقاط");
     } finally {
-      setIsSubmitting(false); // إعادة الحالة بعد الإرسال
+      setIsSubmitting(false);
     }
   };
   
