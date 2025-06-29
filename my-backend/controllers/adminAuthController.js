@@ -15,7 +15,11 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(400).json({ message: 'كلمة المرور غير صحيحة' });
 
-    // ✅ تضمين الدور داخل التوكن
+    // ✅ التأكد من أن الدور هو "admin" فقط
+    if (admin.role !== 'admin') {
+      return res.status(403).json({ message: 'غير مصرح لك بالدخول' });
+    }
+
     const token = jwt.sign(
       { id: admin._id, role: admin.role },
       JWT_SECRET,
