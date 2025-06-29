@@ -186,6 +186,9 @@ const updateUserPoints = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
+ console.log(`⚙️ [updateUserPoints] userId=${userId} | oldPoints=${user.point || 0} | finalPoints=${finalPoints}`);
+
+
     user.point = finalPoints; // تعيين المجموع النهائي مباشرة
     await user.save();
 
