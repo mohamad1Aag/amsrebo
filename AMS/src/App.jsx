@@ -31,12 +31,12 @@ import CaptainLogin from "../captian/CaptainLogin";
 import CaptainRegister from "../captian/CaptainRegister";
 import CaptainOrders from "../captian/CaptainOrders";
 import MyOrders from "./components/UserProfile/MyOrders";
-import Feedback from "../admin-dashboard/src/components/AdminFeedbackTable"; // عدل المسار حسب مكان الملف
-import SliderUpload from "../admin-dashboard/src/pages/SliderUpload/SliderUpload.jsx"; // عدل المسار حسب مكان الملف
-import ForgotPassword from '../src/components/UserProfile/ForgotPassword';
-import ResetPassword from '../src/components/UserProfile/ResetPassword';
-import PointHistory from '../src/components/UserProfile/PointHistory';
-
+import Feedback from "../admin-dashboard/src/components/AdminFeedbackTable";
+import SliderUpload from "../admin-dashboard/src/pages/SliderUpload/SliderUpload.jsx";
+import ForgotPassword from "./components/UserProfile/ForgotPassword";
+import ResetPassword from "./components/UserProfile/ResetPassword";
+import PointHistory from "./components/UserProfile/PointHistory";
+import Wallet from "./components/Wallet";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
@@ -44,17 +44,13 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "./i18n";
 
 function App() {
-  // تهيئة الحالة مباشرة من localStorage لتفادي مشاكل إعادة التوجيه عند التحديث
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("token")); // أدمن
-  const [userAuthenticated, setUserAuthenticated] = useState(() => !!localStorage.getItem("userToken")); // مستخدم
-  const [captainAuthenticated, setCaptainAuthenticated] = useState(() => !!localStorage.getItem("captainToken")); // كابتن
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("token"));
+  const [userAuthenticated, setUserAuthenticated] = useState(() => !!localStorage.getItem("userToken"));
+  const [captainAuthenticated, setCaptainAuthenticated] = useState(() => !!localStorage.getItem("captainToken"));
 
-  const { i18n } = useTranslation();
-  const { darkMode, toggleTheme } = useContext(ThemeContext);
+  const { t } = useTranslation();
+  const { darkMode } = useContext(ThemeContext);
 
-  // لو تريد تحديث حالات المصادقة من localStorage بشكل دوري أو عند التغيير، يمكن استخدام useEffect، لكن هنا ليست ضرورية.
-
-  const handleLogin = () => setIsAuthenticated(true);
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
@@ -70,63 +66,39 @@ function App() {
     setCaptainAuthenticated(false);
   };
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === "en" ? "ar" : "en";
-    i18n.changeLanguage(newLang);
-  };
-
-  // مكون حماية عام يمكن استخدامه لجميع أنواع الحماية
   const ProtectedRoute = ({ isAllowed, redirectPath = "/login", children }) => {
-    if (!isAllowed) {
-      return <Navigate to={redirectPath} replace />;
-    }
+    if (!isAllowed) return <Navigate to={redirectPath} replace />;
     return children;
   };
 
+  const renderLogoutButton = (onClick, color) => (
+    <div
+      className="fixed z-50 right-4 top-1/2 -translate-y-1/2 sm:top-auto sm:bottom-4 sm:translate-y-0"
+    >
+      <button
+        onClick={onClick}
+        className={`w-12 h-12 sm:w-10 sm:h-10 rounded-full shadow-lg flex items-center justify-center text-2xl font-bold transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-4 ${
+          darkMode
+            ? `${color}-400 text-gray-900 focus:ring-${color}-500 focus:ring-offset-gray-900`
+            : `${color}-600 text-white focus:ring-${color}-400 focus:ring-offset-yellow-200`
+        }`}
+        title={t("logout") || "Logout"}
+      >
+        🔓
+      </button>
+    </div>
+  );
+
   return (
     <>
-      {/* أزرار تسجيل الخروج */}
-      {isAuthenticated && (
-        <div className="p-4 text-center">
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-300"
-            title="تسجيل خروج الأدمن"
-          >
-            🔓 تسجيل خروج الأدمن
-          </button>
-        </div>
-      )}
-
-      {userAuthenticated && !isAuthenticated && (
-        <div className="p-4 text-center">
-          <button
-            onClick={handleUserLogout}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-300"
-            title="تسجيل خروج المستخدم"
-          >
-            🔓 تسجيل خروج المستخدم
-          </button>
-        </div>
-      )}
-
-      {captainAuthenticated && (
-        <div className="p-4 text-center">
-          <button
-            onClick={handleCaptainLogout}
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-300"
-            title="تسجيل خروج الكابتن"
-          >
-            🔓 تسجيل خروج الكابتن
-          </button>
-        </div>
-      )}
+      {isAuthenticated && renderLogoutButton(handleLogout, "bg-pink")}
+      {userAuthenticated && !isAuthenticated && renderLogoutButton(handleUserLogout, "bg-blue")}
+      {captainAuthenticated && renderLogoutButton(handleCaptainLogout, "bg-green")}
 
       <BrowserRouter>
         <Routes>
-        <Route path="/SliderUpload" element={<SliderUpload />} />
-
-          {/* صفحات عامة */}
+        <Route path="/wallet" element={<Wallet />} />
+          <Route path="/SliderUpload" element={<SliderUpload />} />
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
@@ -136,148 +108,32 @@ function App() {
           <Route path="/UserEditProfile" element={<UserEditProfile />} />
           <Route path="/ProductList" element={<ProductList />} />
           <Route path="/cart" element={<Cart />} />
-
-          {/* تسجيل دخول الأدمن */}
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-
-          {/* تسجيل دخول الكابتن */}
-          <Route
-            path="/captain/login"
-            element={<CaptainLogin onCaptainLogin={() => setCaptainAuthenticated(true)} />}
-          />
+          <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
+          <Route path="/captain/login" element={<CaptainLogin onCaptainLogin={() => setCaptainAuthenticated(true)} />} />
           <Route path="/captain/register" element={<CaptainRegister />} />
 
-          {/* صفحات محمية للأدمن */}
-          <Route
-            path="/AdminDash"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <AdminDash />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <User />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Product"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Product />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Category"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Category />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Orders"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Orders />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Reports"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Reports />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Settings"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-section"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/list-sections"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-product"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <AddProduct />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <ListProducts />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/AdminDash" element={<ProtectedRoute isAllowed={isAuthenticated}><AdminDash /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute isAllowed={isAuthenticated}><User /></ProtectedRoute>} />
+          <Route path="/Product" element={<ProtectedRoute isAllowed={isAuthenticated}><Product /></ProtectedRoute>} />
+          <Route path="/Category" element={<ProtectedRoute isAllowed={isAuthenticated}><Category /></ProtectedRoute>} />
+          <Route path="/Orders" element={<ProtectedRoute isAllowed={isAuthenticated}><Orders /></ProtectedRoute>} />
+          <Route path="/Reports" element={<ProtectedRoute isAllowed={isAuthenticated}><Reports /></ProtectedRoute>} />
+          <Route path="/Settings" element={<ProtectedRoute isAllowed={isAuthenticated}><Settings /></ProtectedRoute>} />
+          <Route path="/add-section" element={<ProtectedRoute isAllowed={isAuthenticated}><Settings /></ProtectedRoute>} />
+          <Route path="/list-sections" element={<ProtectedRoute isAllowed={isAuthenticated}><Settings /></ProtectedRoute>} />
+          <Route path="/add-product" element={<ProtectedRoute isAllowed={isAuthenticated}><AddProduct /></ProtectedRoute>} />
+          <Route path="/products" element={<ProtectedRoute isAllowed={isAuthenticated}><ListProducts /></ProtectedRoute>} />
 
-          {/* صفحة تفاصيل القسم */}
           <Route path="/section/:id" element={<SectionDetails />} />
-
-          {/* صفحة طلبات المستخدم */}
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/CaptainDashboard" element={<ProtectedRoute isAllowed={captainAuthenticated} redirectPath="/captain/login"><CaptainDashboard /></ProtectedRoute>} />
+          <Route path="/Feedback" element={<ProtectedRoute isAllowed={isAuthenticated}><Feedback /></ProtectedRoute>} />
+          <Route path="/captain/dashboard/orders" element={<ProtectedRoute isAllowed={captainAuthenticated} redirectPath="/captain/login"><CaptainOrders /></ProtectedRoute>} />
 
-          {/* لوحة تحكم الكابتن محمية */}
-          <Route
-            path="/CaptainDashboard"
-            element={
-              <ProtectedRoute isAllowed={captainAuthenticated} redirectPath="/captain/login">
-                <CaptainDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* صفحة التقييمات */}
-          <Route
-            path="/Feedback"
-            element={
-              <ProtectedRoute isAllowed={isAuthenticated}>
-                <Feedback />
-              </ProtectedRoute>
-            }
-          />
-        
-                  
-                  <Route
-            path="/captain/dashboard/orders"
-            element={
-              <ProtectedRoute isAllowed={captainAuthenticated} redirectPath="/captain/login">
-                <CaptainOrders />
-              </ProtectedRoute>
-            }
-          />
-
-<Route path="/forgot-password" element={<ForgotPassword />} />
-<Route path="/reset-password/:token" element={<ResetPassword />} />
-<Route path="PointHistory" element={<PointHistory />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/PointHistory" element={<PointHistory />} />
         </Routes>
-        
       </BrowserRouter>
     </>
   );

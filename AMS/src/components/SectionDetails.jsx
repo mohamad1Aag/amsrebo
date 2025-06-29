@@ -452,7 +452,7 @@ function SectionDetails() {
         {/* مودال التقييم */}
         {showRatingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className={`bg-white rounded-lg p-6 w-11/12 max-w-lg ${darkMode ? 'bg-gray-800 text-white' : ''}`}>
+            <div className={`bg-white rounded-lg p-6 w-11/12 max-w-lg ${darkMode ? 'bg-gray-800 text-black' : ''}`}>
               <h3 className="text-2xl font-bold mb-4">{t('add_review')}</h3>
 
               <div className="mb-4">
@@ -499,26 +499,56 @@ function SectionDetails() {
       <p className="mb-4 font-semibold">{getLocalizedText(selectedProduct?.name)}</p>
 
       <label className="block mb-2 font-semibold">{t('quantity')}</label>
-      <input
-        type="number"
-        min={saleType === "جملة" ? 12 : 1}
-        value={quantity}
-        onChange={(e) => {
-          const val = parseInt(e.target.value, 10);
-          if (saleType === "جملة" && val < 12) {
-            setQuantity(12);
-          } else {
-            setQuantity(val);
-          }
-        }}
-        className={`w-full p-2 border rounded mb-4 transition ${
-          darkMode
-            ? 'bg-gray-800 text-white border-gray-600 placeholder-gray-400'
-            : 'bg-white text-black border-gray-300'
-        }`}
-        placeholder={t('enter_quantity')}
-      />
+      <div className="flex items-center gap-3 mb-4">
+        {/* زر - */}
+        <button
+          type="button"
+          onClick={() => {
+            if (saleType === 'جملة' && quantity > 12) {
+              setQuantity(quantity - 1);
+            } else if (saleType === 'مفرق' && quantity > 1) {
+              setQuantity(quantity - 1);
+            }
+          }}
+          className="px-3 py-1 bg-gray-300 rounded text-lg font-bold hover:bg-gray-400"
+        >
+          -
+        </button>
 
+        {/* حقل الكمية */}
+        <input
+          type="number"
+          min={saleType === "جملة" ? 12 : 1}
+          value={quantity}
+          onChange={(e) => {
+            let val = parseInt(e.target.value, 10);
+            if (isNaN(val)) {
+              setQuantity(saleType === 'جملة' ? 12 : 1);
+            } else {
+              if (saleType === 'جملة' && val < 12) val = 12;
+              if (saleType === 'مفرق' && val < 1) val = 1;
+              setQuantity(val);
+            }
+          }}
+          className={`w-20 p-2 text-center border rounded transition ${
+            darkMode
+              ? 'bg-gray-800 text-white border-gray-600 placeholder-gray-400'
+              : 'bg-white text-black border-gray-300'
+          }`}
+          placeholder={t('enter_quantity')}
+        />
+
+        {/* زر + */}
+        <button
+          type="button"
+          onClick={() => setQuantity(quantity + 1)}
+          className="px-3 py-1 bg-gray-300 rounded text-lg font-bold hover:bg-gray-400"
+        >
+          +
+        </button>
+      </div>
+
+      {/* أزرار تأكيد وإلغاء */}
       <div className="flex justify-end gap-4">
         <button
           onClick={() => setShowAddToCartModal(false)}
@@ -543,7 +573,7 @@ function SectionDetails() {
         {/* مودال السلة (تنبيه) */}
         {showCartModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className={`bg-white rounded-lg p-6 w-96 ${darkMode ? 'bg-gray-800 text-white' : ''}`}>
+            <div className={`bg-white rounded-lg p-6 w-96 ${darkMode ? 'bg-gray-800 text-black' : ''}`}>
               <h3 className="text-xl font-bold mb-4">{t('added_to_cart')}</h3>
               <p>{t('product_added_to_cart_successfully')}</p>
               <div className="flex justify-end mt-6">

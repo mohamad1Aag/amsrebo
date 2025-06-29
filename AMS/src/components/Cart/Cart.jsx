@@ -19,6 +19,7 @@ function Cart() {
   const [cart, setCart] = useState([]);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [deliveryLocation, setDeliveryLocation] = useState(null);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false); // حماية الضغط
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { darkMode } = useContext(ThemeContext);
@@ -41,6 +42,10 @@ function Cart() {
     cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
   const handlePlaceOrder = async () => {
+    if (isPlacingOrder) return;
+    setIsPlacingOrder(true);
+    setTimeout(() => setIsPlacingOrder(false), 10000);
+
     if (!deliveryLocation) {
       alert(t('please_select_location'));
       return;
@@ -69,7 +74,6 @@ function Cart() {
     }
 
     try {
-      // جلب بيانات المستخدم للتحقق من النقاط
       const userRes = await fetch(`https://my-backend-dgp2.onrender.com/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -84,7 +88,6 @@ function Cart() {
         return;
       }
 
-      // تجهيز بيانات المنتجات بشكل متوافق مع الـ backend
       const productsForOrder = cart.map((item) => ({
         productId: item._id || item.id || item.productId,
         vendorId: item.adminId || item.vendorId || null,
@@ -94,7 +97,6 @@ function Cart() {
         type: item.type || 'مفرق',
       }));
 
-      // إنشاء الطلب في الـ backend
       const orderRes = await fetch('https://my-backend-dgp2.onrender.com/api/orders', {
         method: 'POST',
         headers: {
@@ -114,7 +116,6 @@ function Cart() {
         throw new Error(errorData.message || 'فشل إنشاء الطلب');
       }
 
-      // خصم النقاط بعد إنشاء الطلب
       const patchRes = await fetch(`https://my-backend-dgp2.onrender.com/api/users/pointcart/${userId}/points`, {
         method: 'PATCH',
         headers: {
@@ -129,12 +130,12 @@ function Cart() {
         throw new Error(errData.message || 'خطأ في خصم النقاط');
       }
 
-      alert(t('order_success')); // مثلاً "تم إنشاء الطلب وخصم النقاط بنجاح"
+      alert(t('order_success'));
       setCart([]);
       setDeliveryLocation(null);
       localStorage.removeItem('cart');
       localStorage.removeItem('deliveryLocation');
-      navigate('/');
+      navigate('/my-orders');
     } catch (error) {
       alert(t('server_error'));
       console.error(error);
@@ -188,7 +189,6 @@ function Cart() {
               <button
                 onClick={() => removeFromCart(index)}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition"
-                aria-label={`${t('remove')} ${item.name}`}
               >
                 {t('remove')}
               </button>
@@ -211,9 +211,24 @@ function Cart() {
           {deliveryLocation && (
             <button
               onClick={handlePlaceOrder}
-              className="bg-green-600 hover:bg-green-700 text-yellow-300 px-8 py-3 rounded-full shadow-lg transition font-bold"
+              disabled={isPlacingOrder}
+              className={`px-8 py-3 rounded-full shadow-lg font-bold transition ${
+                isPlacingOrder
+                  ? 'bg-gray-500 text-white cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-yellow-300'
+              }`}
             >
-              ✅ {t('confirm_order')}
+              {isPlacingOrder ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  {t('processing_order') || 'جارٍ الإرسال...'}
+                </span>
+              ) : (
+                <>✅ {t('confirm_order')}</>
+              )}
             </button>
           )}
         </div>

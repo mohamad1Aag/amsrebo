@@ -2,12 +2,12 @@
     "welcome": "أهلاً بكم في موقع AMS.WEB للتجارة العامة في مدينة سوريا محافظة اللاذقية",
     "dark_mode": "الوضع الداكن",
     "light_mode": "الوضع الفاتح",
-    "go_to_services": "الذهاب إلى صفحة الخدمات",
+    "go_to_services": "الذهاب إلى صفحة الاقسام",
     
     
         "home": "الرئيسية",
         "admin_dashboard": "لوحة التحكم",
-        "services": "الخدمات",
+        "services": "الاقسام",
         "about_us": "معلومات عنا",
         "contact": "اتصل بنا",
         "user_profile": "الملف الشخصي",
@@ -261,7 +261,7 @@
     "edit_profile": "تعديل الملف",
     "point_history": "سجل النقاط",
     "cart": "المشتريات",
-    "services": "الخدمات",
+    "services": "الاقسام",
     "captain": "كابتن",
     "home": "الرئيسية",
     "admin_dashboard": "لوحة التحكم",
@@ -337,22 +337,27 @@
           "captain": "الكابتن",
           "captain_login": "تسجيل دخول الكابتن",
           "captain_register": "تسجيل الكابتن",
-          "user_profile": "ملف المستخدم",
-          "edit_profile": "تعديل الملف",
+          "user_profile": "تسجيل",
+          "edit_profile": "ملفي الشخصي ",
           "point": "النقاط",
           "cart": "عربة التسوق",
-          "services": "الخدمات",
+          "services": "الاقسام",
           "my_orders": "طلباتي",
         
         
    
   "dashboard": "لوحة التحكم",
   "users": "المستخدمون",
-  "slider": "إدارة السلايدر"
+  "slider": "إدارة السلايدر",
 
 
     
-    
+  
+    "recharge_wallet": "شحن الرصيد",
+    "insufficient_points_message": "رصيدك الحالي لا يكفي لإتمام الطلب. يرجى التواصل معنا لشحن الرصيد.",
+    "contact_whatsapp": "تواصل عبر واتساب",
+    "contact_telegram": "تواصل عبر تيليغرام",
+    "wallet": "شحن المحفظة"
     
   
   

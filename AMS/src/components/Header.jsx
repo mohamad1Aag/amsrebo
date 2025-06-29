@@ -22,6 +22,7 @@ function Header() {
     { path: "/AdminDash", label: "admin_dashboard" },
     { path: "/about", label: "about_us" },
     { path: "/contact", label: "contact" },
+    { path: "/wallet", label: "wallet" },
   ];
 
   const captainLinks = [

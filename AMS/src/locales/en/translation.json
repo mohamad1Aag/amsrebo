@@ -2,16 +2,16 @@
     "welcome": "Welcome to AMS.WEB general trade in Latakia, Syria",
     "dark_mode": "Dark Mode",
     "light_mode": "Light Mode",
-    "go_to_services": "Go to Services Page",
+    "go_to_services": "Go to Section Page",
     "home": "Home",
   "admin_dashboard": "Admin Dashboard",
-  "services": "Services",
+  "services": "Sections",
   "about_us": "About Us",
   "contact": "Contact",
-  "user_profile": "User Profile",
+  "user_profile": "login/reg",
   "captain_dashboard": "Captain Dashboard",
   "cart": "Cart",
-  "edit_profile": "Edit Profile",
+  "edit_profile": " Profile",
   "all_sections": "All Sections",
   "search_placeholder": "Search by section name...",
   "no_results": "No matching results.",
@@ -157,16 +157,16 @@
           "captain": "Captain",
           "captain_login": "Captain Login",
           "captain_register": "Captain Register",
-          "user_profile": "User Profile",
+          "user_profile": "login/reg",
           "edit_profile": "Edit Profile",
           "point": "Points",
           "cart": "Cart",
-          "services": "Services",
-          "my_orders": "My Orders"
+          "services": "Sections",
+          "my_orders": "My Orders",
         
         
   
-    
+          "wallet": "Charge Wallet"
     
   
   
